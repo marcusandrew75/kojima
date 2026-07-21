@@ -4,7 +4,8 @@ A standalone, dependency-free HTML tool that generates precise, grid-locked
 micro-graphics — registration marks, dials, starbursts, barcodes, monospace
 labels, one accent colour, everything locked to a grid.
 
-Open [`kojima.html`](kojima.html) in any browser. No build step, no
+Open [`index.html`](index.html) in any browser, or visit the live version at
+[kojima-san.vercel.app](https://kojima-san.vercel.app). No build step, no
 dependencies, works offline.
 
 ## The name
