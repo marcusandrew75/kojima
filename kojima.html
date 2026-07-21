@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>MICROGRAPHIC — Generator</title>
+<title>KOJIMA — Micro-graphic Generator</title>
 <style>
 :root{--bg:#141310;--panel:#1C1B17;--ink:#EFEBE0;--dim:#8A867A;--line:#33312A;--acc:#FF4D00}
 *{box-sizing:border-box;margin:0;padding:0}
@@ -47,7 +47,7 @@ footer{margin-top:32px;border-top:1px solid var(--line);padding-top:12px;color:v
 </style>
 </head>
 <body>
-<header><h1>MICROGRAPHIC — GENERATOR</h1><span>V0.2 / AFTER K.A.M.</span></header>
+<header><h1>KOJIMA — MICRO-GRAPHIC GENERATOR</h1><span>V0.2 / AFTER K.A.M.</span></header>
 <div class="wrap">
   <div class="stage">
     <div id="stage"></div>
@@ -265,7 +265,7 @@ function art(seed,locks,word){
  for(const[mx,my]of[[34,34],[W-34,34],[34,H-34],[W-34,H-34]])s+=L(mx-5,my,mx+5,my,1)+L(mx,my-5,mx,my+5,1);
  const num=ri(1,99),fig=String(ri(1,12)).padStart(2,'0');
  s+=T(52,56,'N°'+String(seed%10000).padStart(4,'0'),10);
- s+=T(W/2,56,'MICROGRAPHIC — SERIES '+pick(['A','B','C','K']),10,'middle');
+ s+=T(W/2,56,'KOJIMA — SERIES '+pick(['A','B','C','K']),10,'middle');
  s+=T(W-52,56,'FIG.'+fig,10,'end');
  s+=L(52,66,W-52,66,0.75);
 
@@ -426,14 +426,14 @@ $('seed').addEventListener('keydown',e=>{if(e.key==='Enter')$('applySeed').click
 $('word').addEventListener('input',()=>render(cur.seed));
 function dl(url,fn){const a=document.createElement('a');a.href=url;a.download=fn;a.click();}
 function slug(t){return t.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')||'untitled';}
-$('dlsvg').onclick=()=>dl(URL.createObjectURL(new Blob([cur.svg],{type:'image/svg+xml'})),'micrographic-'+slug(cur.label)+'-'+cur.seed+'.svg');
+$('dlsvg').onclick=()=>dl(URL.createObjectURL(new Blob([cur.svg],{type:'image/svg+xml'})),'kojima-'+slug(cur.label)+'-'+cur.seed+'.svg');
 $('dlpng').onclick=()=>{
  const k=parseInt($('pngScale').value,10);
  const img=new Image();
  img.onload=()=>{
   const c=document.createElement('canvas');c.width=W*k;c.height=H*k;
   c.getContext('2d').drawImage(img,0,0,c.width,c.height);
-  c.toBlob(b=>dl(URL.createObjectURL(b),'micrographic-'+slug(cur.label)+'-'+cur.seed+'.png'));
+  c.toBlob(b=>dl(URL.createObjectURL(b),'kojima-'+slug(cur.label)+'-'+cur.seed+'.png'));
  };
  img.src=URL.createObjectURL(new Blob([cur.svg],{type:'image/svg+xml;charset=utf-8'}));
 };
@@ -455,8 +455,8 @@ $('rollBatch').onclick=()=>{
 };
 $('dlzip').onclick=()=>{
  if(!batch.length)return;
- const files=batch.map(g=>({name:'micrographic-'+slug(g.label)+'-'+g.seed+'.svg',text:g.svg}));
- dl(URL.createObjectURL(makeZip(files)),'micrographic-batch-'+batch.length+'.zip');
+ const files=batch.map(g=>({name:'kojima-'+slug(g.label)+'-'+g.seed+'.svg',text:g.svg}));
+ dl(URL.createObjectURL(makeZip(files)),'kojima-batch-'+batch.length+'.zip');
 };
 render(Math.floor(Math.random()*1e9));
 </script>

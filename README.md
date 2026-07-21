@@ -1,12 +1,19 @@
-# Micrographic — Generator
+# Kojima — Micro-graphic Generator
 
 A standalone, dependency-free HTML tool that generates precise, grid-locked
-micro-graphics in the spirit of Kyle Anthony Miller's work — registration
-marks, dials, starbursts, barcodes, monospace labels, one accent colour,
-everything locked to a grid.
+micro-graphics — registration marks, dials, starbursts, barcodes, monospace
+labels, one accent colour, everything locked to a grid.
 
-Open [`micrographic.html`](micrographic.html) in any browser. No build step, no
+Open [`kojima.html`](kojima.html) in any browser. No build step, no
 dependencies, works offline.
+
+## The name
+
+A double homage. The visual style is a tribute to the micro-graphic work of
+**Kyle Anthony Miller** (the `AFTER K.A.M.` mark in the header). The results
+also channel the diegetic, instrument-panel interface language of **Hideo
+Kojima's** games — the codec screens, soliton radar, and tactical HUDs of Metal
+Gear Solid, and the technical UI craft of Death Stranding — hence the name.
 
 ## Features
 
