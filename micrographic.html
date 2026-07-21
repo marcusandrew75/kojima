@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MICROGRAPHIC — Generator</title>
+<style>
+:root{--bg:#141310;--panel:#1C1B17;--ink:#EFEBE0;--dim:#8A867A;--line:#33312A;--acc:#FF4D00}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);font-family:ui-monospace,'SF Mono',Menlo,Consolas,monospace;font-size:12px;letter-spacing:.05em;padding:28px;min-height:100vh}
+header{display:flex;justify-content:space-between;align-items:baseline;border-bottom:1px solid var(--line);padding-bottom:14px;margin-bottom:24px}
+h1{font-size:14px;font-weight:400;letter-spacing:.25em}
+header span{color:var(--dim);font-size:11px}
+.wrap{display:flex;gap:28px;flex-wrap:wrap;align-items:flex-start}
+.stage{flex:0 1 560px;max-width:560px}
+.stage svg{width:100%;height:auto;display:block}
+.panel{flex:1 1 300px;min-width:280px;display:flex;flex-direction:column;gap:20px}
+.sec{border:1px solid var(--line);padding:16px}
+.sec h2{font-size:10px;font-weight:400;color:var(--dim);letter-spacing:.25em;margin-bottom:12px}
+button{background:none;border:1px solid var(--ink);color:var(--ink);font:inherit;letter-spacing:.15em;padding:9px 14px;cursor:pointer;text-transform:uppercase}
+button:hover{background:var(--ink);color:var(--bg)}
+button.big{width:100%;padding:14px;font-size:13px;border-color:var(--acc);color:var(--acc)}
+button.big:hover{background:var(--acc);color:var(--bg)}
+button.ghost{border-color:var(--line);color:var(--dim);padding:6px 10px;font-size:10px}
+button.ghost:hover{border-color:var(--ink);color:var(--ink);background:none}
+button.ghost.on{border-color:var(--acc);color:var(--acc)}
+.trait{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.trait label{width:86px;color:var(--dim);font-size:10px;letter-spacing:.2em}
+.trait .val{flex:1;border:1px solid var(--line);padding:7px 10px;cursor:pointer;user-select:none;font-size:11px}
+.trait .val:hover{border-color:var(--ink)}
+input[type=text]{background:none;border:1px solid var(--line);color:var(--ink);font:inherit;padding:8px 10px;width:100%;letter-spacing:.15em}
+input[type=text]:focus{outline:none;border-color:var(--ink)}
+select{background:var(--bg);border:1px solid var(--line);color:var(--ink);font:inherit;padding:8px;letter-spacing:.1em}
+.row{display:flex;gap:8px;align-items:center}
+.row>*{flex-shrink:0}
+.row .grow{flex:1}
+#hist{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
+#hist button{padding:3px;border-color:var(--line);line-height:0}
+#hist button:hover{border-color:var(--ink);background:none}
+#hist svg{width:60px;height:60px;display:block}
+#batchGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin-top:14px}
+#batchGrid button{padding:3px;border-color:var(--line);line-height:0;width:100%}
+#batchGrid button:hover{border-color:var(--ink);background:none}
+#batchGrid svg{width:100%;height:auto;display:block}
+.hint{color:var(--dim);font-size:10px;margin-top:10px;letter-spacing:.15em}
+footer{margin-top:32px;border-top:1px solid var(--line);padding-top:12px;color:var(--dim);font-size:10px;letter-spacing:.2em}
+</style>
+</head>
+<body>
+<header><h1>MICROGRAPHIC — GENERATOR</h1><span>V0.2 / AFTER K.A.M.</span></header>
+<div class="wrap">
+  <div class="stage">
+    <div id="stage"></div>
+    <div id="hist"></div>
+  </div>
+  <div class="panel">
+    <button class="big" id="lucky">◇ Feeling lucky (L)</button>
+    <div class="sec">
+      <h2>TRAITS — CLICK VALUE TO CYCLE / LOCK TO PIN</h2>
+      <div class="trait"><label>PALETTE</label><div class="val" data-t="pal"></div><button class="ghost" data-l="pal">LOCK</button></div>
+      <div class="trait"><label>LAYOUT</label><div class="val" data-t="layout"></div><button class="ghost" data-l="layout">LOCK</button></div>
+      <div class="trait"><label>INSTRUMENT</label><div class="val" data-t="instr"></div><button class="ghost" data-l="instr">LOCK</button></div>
+      <div class="trait"><label>NAME</label><div class="val" data-t="name"></div><button class="ghost" data-l="name">LOCK</button></div>
+    </div>
+    <div class="sec">
+      <h2>WORDMARK + SEED</h2>
+      <input type="text" id="word" maxlength="16" placeholder="CUSTOM WORDMARK (OPTIONAL)" style="margin-bottom:8px">
+      <div class="row"><input type="text" id="seed" class="grow" style="flex:1"><button id="applySeed">APPLY</button></div>
+    </div>
+    <div class="sec">
+      <h2>EXPORT</h2>
+      <div class="row">
+        <button id="dlsvg">SVG</button>
+        <button id="dlpng">PNG</button>
+        <select id="pngScale"><option value="1">560PX</option><option value="2" selected>1120PX</option><option value="4">2240PX</option></select>
+      </div>
+    </div>
+    <div class="sec">
+      <h2>BATCH</h2>
+      <div class="row">
+        <select id="batchN"><option>6</option><option selected>12</option><option>24</option></select>
+        <button id="rollBatch">ROLL BATCH</button>
+        <button id="dlzip" disabled style="opacity:.4">ZIP (SVG)</button>
+      </div>
+      <div class="hint">BATCH RESPECTS LOCKED TRAITS. CLICK A TILE TO LOAD IT.</div>
+    </div>
+  </div>
+</div>
+<div id="batchGrid"></div>
+<footer>DETERMINISTIC SEEDS · SLOT-LOCKED COMPOSITION · NO DEPENDENCIES</footer>
+<script>
+'use strict';
+const W=560,H=560,MONO="ui-monospace,'SF Mono',Menlo,Consolas,monospace";
+const PALS=[
+ {bg:'#EFEBE0',ink:'#17160F',acc:'#FF4D00',n:'CREAM/ORG'},
+ {bg:'#17160F',ink:'#EFEBE0',acc:'#FF4D00',n:'BLACK/ORG'},
+ {bg:'#EFEBE0',ink:'#17160F',acc:'#2438E8',n:'CREAM/BLU'},
+ {bg:'#F0ECE2',ink:'#141414',acc:'#0E8A5F',n:'CREAM/GRN'},
+ {bg:'#17160F',ink:'#EFEBE0',acc:'#2438E8',n:'BLACK/BLU'},
+ {bg:'#FF4D00',ink:'#17160F',acc:'#EFEBE0',n:'ORANGE'}
+];
+const NAMES=['ORBIT','SIGNAL','RELAY','SECTOR','FLUX','MODULE','VECTOR','PHASE','DRIFT','PULSE','AXIOM','LUMEN','SONAR','KERNEL','STRATA','HALO'];
+const INSTR=['TARGET','BURST','DIAL','ORBIT','ARC-GRID','ECLIPSE','WAVE','CONTOUR','BARS','GLOBE','RADAR','FIELD'];
+const LAYOUTS=['CENTERED','SPLIT','OFFSET','DUO'];
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function esc(t){return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+
+function art(seed,locks,word){
+ const R=mulberry32(seed);
+ const pick=a=>a[Math.floor(R()*a.length)];
+ const ri=(a,b)=>a+Math.floor(R()*(b-a+1));
+ let palIdx=R()<0.1?5:Math.floor(R()*5);
+ let layout=ri(0,3);
+ let instr=ri(0,11);
+ let name=pick(NAMES);
+ if(locks.pal!=null)palIdx=locks.pal;
+ if(locks.layout!=null)layout=locks.layout;
+ if(locks.instr!=null)instr=locks.instr;
+ if(locks.name!=null)name=locks.name;
+ const P=PALS[palIdx],ink=P.ink,acc=P.acc;
+ const T=(x,y,str,fs,anch,fill,ls)=>`<text x="${x}" y="${y}" font-family="${MONO}" font-size="${fs}" text-anchor="${anch||'start'}" fill="${fill||ink}" letter-spacing="${ls==null?1.5:ls}">${str}</text>`;
+ const L=(x1,y1,x2,y2,w,st,dash)=>`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${st||ink}" stroke-width="${w||1}"${dash?` stroke-dasharray="${dash}"`:''}/>`;
+ const C=(cx,cy,r,w,st,dash,fill)=>`<circle cx="${cx}" cy="${cy}" r="${r}" fill="${fill||'none'}"${w?` stroke="${st||ink}" stroke-width="${w}"`:''}${dash?` stroke-dasharray="${dash}"`:''}/>`;
+ const px=(cx,cy,r,deg)=>[cx+r*Math.cos(deg*Math.PI/180),cy+r*Math.sin(deg*Math.PI/180)];
+
+ function drawInstr(idx,cx,cy,r){
+  let s='';
+  if(idx===0){
+   s+=C(cx,cy,r,1.5)+C(cx,cy,r*0.7,1,ink,'3 5')+C(cx,cy,r*0.42,1.25);
+   for(const a of[0,90,180,270]){const[x1,y1]=px(cx,cy,r-12,a),[x2,y2]=px(cx,cy,r+14,a);s+=L(x1,y1,x2,y2,1.25);}
+   const[ax,ay]=px(cx,cy,r*0.7,R()*360);s+=C(ax,ay,r*0.045+1,0,null,null,acc);
+   s+=C(cx,cy,r*0.04+1,0,null,null,ink);
+  }else if(idx===1){
+   const n=pick([24,36,48]);
+   for(let i=0;i<n;i++){const a=i*360/n,r1=i%2?r*0.55:r*0.4;const[x1,y1]=px(cx,cy,r1,a),[x2,y2]=px(cx,cy,r,a);s+=L(x1,y1,x2,y2,1.25);}
+   s+=C(cx,cy,r*0.28,1.25)+C(cx,cy,r*0.05+1,0,null,null,acc);
+  }else if(idx===2){
+   s+=C(cx,cy,r,1.5);
+   for(let i=0;i<60;i++){const a=i*6,len=i%5?r*0.05:r*0.11;const[x1,y1]=px(cx,cy,r-len-2,a),[x2,y2]=px(cx,cy,r-2,a);s+=L(x1,y1,x2,y2,i%5?0.75:1.25);}
+   const na=R()*360;const[nx,ny]=px(cx,cy,r-r*0.2,na);
+   s+=L(cx,cy,nx,ny,2.5,acc);
+   s+=C(cx,cy,r*0.06+1,0,null,null,ink)+C(cx,cy,r*0.025+1,0,null,null,P.bg);
+  }else if(idx===3){
+   s+=C(cx,cy,r,1,ink,'2 6')+C(cx,cy,r*0.55,1.5);
+   s+=L(cx-r*0.3,cy,cx+r*0.3,cy,1)+L(cx,cy-r*0.3,cx,cy+r*0.3,1);
+   const a1=R()*360,a2=a1+120+R()*100;
+   const[b1x,b1y]=px(cx,cy,r,a1),[b2x,b2y]=px(cx,cy,r,a2);
+   s+=C(b1x,b1y,r*0.07+1,0,null,null,ink)+C(b2x,b2y,r*0.05+1,0,null,null,acc);
+  }else if(idx===4){
+   const n=4,cell=Math.round(2*r/n),x0=cx-cell*n/2,y0=cy-cell*n/2,rad=cell/2;
+   const accCell=ri(0,n*n-1);
+   for(let i=0;i<n*n;i++){
+    const gx=x0+(i%n)*cell,gy=y0+Math.floor(i/n)*cell;
+    const col=i===accCell?acc:ink,sw=i===accCell?2.25:1.5;
+    if(R()<0.5){
+     s+=`<path d="M ${gx+rad} ${gy} A ${rad} ${rad} 0 0 1 ${gx} ${gy+rad}" fill="none" stroke="${col}" stroke-width="${sw}"/>`;
+     s+=`<path d="M ${gx+cell-rad} ${gy+cell} A ${rad} ${rad} 0 0 1 ${gx+cell} ${gy+cell-rad}" fill="none" stroke="${col}" stroke-width="${sw}"/>`;
+    }else{
+     s+=`<path d="M ${gx+cell} ${gy+rad} A ${rad} ${rad} 0 0 1 ${gx+cell-rad} ${gy}" fill="none" stroke="${col}" stroke-width="${sw}"/>`;
+     s+=`<path d="M ${gx} ${gy+cell-rad} A ${rad} ${rad} 0 0 1 ${gx+rad} ${gy+cell}" fill="none" stroke="${col}" stroke-width="${sw}"/>`;
+    }
+   }
+   s+=`<rect x="${x0}" y="${y0}" width="${cell*n}" height="${cell*n}" fill="none" stroke="${ink}" stroke-width="1.25"/>`;
+  }else if(idx===5){
+   const rot=ri(0,359),ri85=r*0.85;
+   s+=C(cx,cy,ri85,1.5);
+   s+=`<path d="M ${cx} ${cy-ri85} A ${ri85} ${ri85} 0 0 1 ${cx} ${cy+ri85} Z" fill="${ink}" transform="rotate(${rot} ${cx} ${cy})"/>`;
+   s+=C(cx,cy,r,1,ink,'1 6');
+   const[dx,dy]=px(cx,cy,r,R()*360);s+=C(dx,dy,r*0.04+1,0,null,null,acc);
+  }else if(idx===6){
+   const w=r*1.9,h=r,x0=cx-w/2,y0=cy-h/2;
+   s+=`<rect x="${x0}" y="${y0}" width="${w}" height="${h}" fill="none" stroke="${ink}" stroke-width="1.25"/>`;
+   s+=L(x0+6,cy,x0+w-6,cy,0.75,ink,'2 4');
+   const wavX=i=>x0+8+i*(w-16)/80;
+   if(R()<0.5){
+    const cyc=pick([2,3,4]);let pts='';
+    for(let i=0;i<=80;i++)pts+=`${wavX(i).toFixed(1)},${(cy-Math.sin(i/80*Math.PI*2*cyc)*h*0.32).toFixed(1)} `;
+    s+=`<polyline points="${pts}" fill="none" stroke="${ink}" stroke-width="1.5"/>`;
+    const pk=ri(0,cyc-1);s+=C(wavX((pk+0.25)*80/cyc),cy-h*0.32,3.5,0,null,null,acc);
+   }else{
+    const n=ri(6,9),step=(w-16)/n;let d=`M ${x0+8} ${cy}`;let lvl=0;
+    for(let i=0;i<n;i++){const nl=pick([-1,-0.5,0.5,1])*h*0.3;d+=` V ${cy+nl} h ${step.toFixed(1)}`;lvl=nl;}
+    d+=` V ${cy}`;
+    s+=`<path d="${d}" fill="none" stroke="${ink}" stroke-width="1.5"/>`;
+    s+=C(x0+8+step*ri(1,n-1),cy+lvl*0,3.5,0,null,null,acc);
+   }
+  }else if(idx===7){
+   let ox=cx,oy=cy;
+   for(let i=0;i<5;i++){
+    s+=C(ox,oy,r*(1-i*0.17),i===0?1.5:1.25);
+    ox+=ri(-5,5);oy+=ri(-5,5);
+   }
+   s+=C(ox,oy,r*0.05+1.5,0,null,null,acc);
+   const[t1x,t1y]=px(cx,cy,r,R()*360);s+=L(cx,cy,t1x,t1y,0.5,ink,'1 4');
+  }else if(idx===8){
+   const k=5,w=r*1.7,x0=cx-w/2,accRow=ri(0,k-1);
+   for(let i=0;i<k;i++){
+    const y=cy-r*0.8+i*(r*1.6/(k-1));
+    s+=L(x0,y,x0+w,y,0.75,ink,'1 3');
+    const bw=w*(0.15+R()*0.8);
+    s+=`<rect x="${x0}" y="${y-4.5}" width="${bw.toFixed(1)}" height="9" fill="${i===accRow?acc:ink}"/>`;
+   }
+   s+=L(x0,cy-r*0.8-14,x0,cy+r*0.8+14,1);
+  }else if(idx===9){
+   s+=C(cx,cy,r,1.5);
+   for(const f of[0.33,0.66])s+=`<ellipse cx="${cx}" cy="${cy}" rx="${r*f}" ry="${r}" fill="none" stroke="${ink}" stroke-width="1"/>`;
+   s+=L(cx,cy-r,cx,cy+r,1);
+   for(const f of[-0.6,-0.3,0,0.3,0.6]){
+    const yy=r*f,hw=Math.sqrt(r*r-yy*yy);
+    s+=L(cx-hw,cy+yy,cx+hw,cy+yy,f===0?1:0.75);
+   }
+   const lf=pick([-0.6,-0.3,0.3,0.6]),lyy=r*lf,lhw=Math.sqrt(r*r-lyy*lyy);
+   s+=C(cx+(R()*1.6-0.8)*lhw,cy+lyy,r*0.045+1,0,null,null,acc);
+  }else if(idx===10){
+   s+=C(cx,cy,r,1.5)+C(cx,cy,r*0.66,1)+C(cx,cy,r*0.33,1);
+   s+=L(cx-r,cy,cx+r,cy,0.5,ink,'2 4')+L(cx,cy-r,cx,cy+r,0.5,ink,'2 4');
+   const a1=R()*360;const[w1x,w1y]=px(cx,cy,r,a1),[w2x,w2y]=px(cx,cy,r,a1+38);
+   s+=`<path d="M ${cx} ${cy} L ${w1x.toFixed(1)} ${w1y.toFixed(1)} A ${r} ${r} 0 0 1 ${w2x.toFixed(1)} ${w2y.toFixed(1)} Z" fill="${acc}"/>`;
+   for(let b=0;b<2;b++){const[bx,by]=px(cx,cy,r*(0.3+R()*0.55),R()*360);s+=C(bx,by,3,0,null,null,ink);}
+   s+=C(cx,cy,3.5,0,null,null,ink);
+  }else{
+   const n=5,step=2*r*0.92/(n-1),x0=cx-r*0.92,y0=cy-r*0.92,z=Math.min(7,step*0.22);
+   const hi=ri(0,n*n-1);
+   for(let i=0;i<n*n;i++){
+    const gx=x0+(i%n)*step,gy=y0+Math.floor(i/n)*step;
+    s+=L(gx-z,gy,gx+z,gy,1.25)+L(gx,gy-z,gx,gy+z,1.25);
+    if(i===hi)s+=C(gx,gy,z+5,1.5,acc);
+   }
+  }
+  return s;
+ }
+
+ function glyph(sx,sy,t){
+  const z=14;let s='';
+  if(t===0)s+=L(sx-z,sy,sx+z,sy,1.25)+L(sx,sy-z,sx,sy+z,1.25);
+  else if(t===1)s+=C(sx,sy,z,1.25)+C(sx,sy,3.5,0,null,null,acc);
+  else if(t===2)s+=`<rect x="${sx-z*0.8}" y="${sy-z*0.8}" width="${z*1.6}" height="${z*1.6}" fill="none" stroke="${ink}" stroke-width="1.25" transform="rotate(45 ${sx} ${sy})"/>`;
+  else if(t===3)s+=`<polygon points="${sx},${sy-z} ${sx+z},${sy+z*0.8} ${sx-z},${sy+z*0.8}" fill="none" stroke="${ink}" stroke-width="1.25"/>`;
+  else if(t===4){for(let k=0;k<5;k++)s+=L(sx-14+k*7,sy-z*0.7,sx-14+k*7,sy+z*0.7,k===2?2:1);}
+  else s+=C(sx,sy,z,1.25,ink,'2 4')+C(sx,sy,z*0.45,1.25);
+  return s;
+ }
+ function barcode(sx,sy){
+  let s='',bx=sx-36;
+  while(bx<sx+30){const bw=pick([1.25,2,3.5]);s+=`<rect x="${bx.toFixed(2)}" y="${sy-12}" width="${bw}" height="24" fill="${ink}"/>`;bx+=bw+2.5;}
+  return s;
+ }
+ function dotgrid(sx,sy){
+  let s='';const ax=ri(0,4);
+  for(let gy=0;gy<3;gy++)for(let gx=0;gx<5;gx++)s+=C(sx-22+gx*11,sy-11+gy*11,1.7,0,null,null,gx===ax&&gy===1?acc:ink);
+  return s;
+ }
+ function decoAt(sx,sy,ty){
+  let s='',lab='';
+  if(ty==='bar'){s+=barcode(sx,sy);lab='C.'+ri(10,99);}
+  else if(ty==='dots'){s+=dotgrid(sx,sy);lab='M.'+ri(10,99);}
+  else{s+=glyph(sx,sy,ri(0,5));lab=pick(['X.','Y.','T.','V.'])+ri(10,99);}
+  s+=T(sx,sy+32,lab,8,'middle',ink,1);
+  return s;
+ }
+
+ let s='';
+ s+=`<rect width="${W}" height="${H}" fill="${P.bg}"/>`;
+ s+=`<rect x="18.5" y="18.5" width="${W-37}" height="${H-37}" fill="none" stroke="${ink}" stroke-width="1.25"/>`;
+ for(const[mx,my]of[[34,34],[W-34,34],[34,H-34],[W-34,H-34]])s+=L(mx-5,my,mx+5,my,1)+L(mx,my-5,mx,my+5,1);
+ const num=ri(1,99),fig=String(ri(1,12)).padStart(2,'0');
+ s+=T(52,56,'N°'+String(seed%10000).padStart(4,'0'),10);
+ s+=T(W/2,56,'MICROGRAPHIC — SERIES '+pick(['A','B','C','K']),10,'middle');
+ s+=T(W-52,56,'FIG.'+fig,10,'end');
+ s+=L(52,66,W-52,66,0.75);
+
+ if(layout===0){
+  s+=drawInstr(instr,W/2,H/2-14,ri(108,130));
+  const slots=[[96,104],[W-96,104],[96,H-176],[W-96,H-176]];
+  const order=[0,1,2,3];
+  for(let i=3;i>0;i--){const j=ri(0,i);[order[i],order[j]]=[order[j],order[i]];}
+  const types=['bar','dots','g','g'];
+  for(let i=3;i>0;i--){const j=ri(0,i);[types[i],types[j]]=[types[j],types[i]];}
+  const nDeco=ri(2,4);
+  for(let d=0;d<nDeco;d++)s+=decoAt(slots[order[d]][0],slots[order[d]][1],types[d]);
+ }else if(layout===1){
+  s+=L(340,66,340,460,1);
+  s+=drawInstr(instr,196,263,ri(92,108));
+  s+=T(196,430,'TYPE/'+INSTR[instr],8,'middle',ink,1);
+  s+=T(364,100,'DATA/'+ri(10,99),9);
+  const accRow=ri(0,4);
+  for(let i=0;i<5;i++){
+   const y=126+i*20;
+   s+=L(364,y,496,y,0.75,ink,'1 3');
+   s+=`<rect x="364" y="${y-4.5}" width="${(132*(0.15+R()*0.8)).toFixed(1)}" height="9" fill="${i===accRow?acc:ink}"/>`;
+  }
+  s+=L(364,232,496,232,0.75);
+  s+=barcode(430,264);
+  s+=dotgrid(430,316);
+  s+=T(364,372,'X.'+ri(10,99),8);
+  s+=T(364,392,'Y.'+ri(10,99),8);
+ }else if(layout===2){
+  const r1=ri(88,102),c1x=208,c1y=224;
+  s+=drawInstr(instr,c1x,c1y,r1);
+  const instr2=(instr+ri(1,11))%12,r2=58,c2x=426,c2y=368;
+  s+=drawInstr(instr2,c2x,c2y,r2);
+  const dx=c2x-c1x,dy=c2y-c1y,dist=Math.hypot(dx,dy),ux=dx/dist,uy=dy/dist;
+  const lx1=c1x+ux*(r1+22),ly1=c1y+uy*(r1+22),lx2=c2x-ux*(r2+20),ly2=c2y-uy*(r2+20);
+  s+=L(lx1,ly1,lx2,ly2,0.75,ink,'3 4');
+  s+=C(lx1,ly1,2.5,0,null,null,ink);
+  const ha=Math.atan2(dy,dx);
+  for(const off of[2.6,-2.6]){
+   s+=L(lx2,ly2,lx2-8*Math.cos(ha+off*0.13*Math.PI),ly2-8*Math.sin(ha+off*0.13*Math.PI),1);
+  }
+  s+=T(346,372,'REF/'+INSTR[instr2],8,'end',ink,1);
+  s+=decoAt(W-96,104,pick(['bar','dots','g']));
+  s+=dotgrid(88,100);
+  s+=T(88,132,'M.'+ri(10,99),8,'middle',ink,1);
+  s+=T(96,410,'X.'+ri(10,99)+' Y.'+ri(10,99),8,'middle',ink,1);
+ }else{
+  const i2=(instr+ri(1,11))%12;
+  s+=drawInstr(instr,168,250,80);
+  s+=drawInstr(i2,392,250,80);
+  s+=L(280,86,280,390,0.75,ink,'2 5');
+  s+=T(168,104,'01',9,'middle');
+  s+=T(392,104,'02',9,'middle');
+  s+=T(168,376,'A/'+INSTR[instr],8,'middle',ink,1);
+  s+=T(392,376,'B/'+INSTR[i2],8,'middle',ink,1);
+  s+=barcode(280,416);
+ }
+
+ const fy=H-100;
+ const wm=(word&&word.trim())?esc(word.trim().toUpperCase()):name+'—'+String(num).padStart(2,'0');
+ s+=L(52,fy,W-52,fy,1);
+ s+=T(52,fy+34,wm,25,'start',ink,4);
+ s+=T(52,fy+56,'SYS.'+ri(1,9)+' / '+LAYOUTS[layout]+' / '+INSTR[instr]+' / '+P.n,9,'start',ink,1.2);
+ s+=`<rect x="${W-66}" y="${fy+16}" width="14" height="14" fill="${acc}"/>`;
+ s+=T(W-80,fy+27,String(ri(1,99)).padStart(2,'0')+'/100',10,'end',ink,1);
+ return{
+  svg:`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" shape-rendering="geometricPrecision">${s}</svg>`,
+  traits:{pal:palIdx,layout,instr,name},
+  label:(word&&word.trim())?word.trim().toUpperCase():name+'-'+num
+ };
+}
+
+const CT=(()=>{const t=new Uint32Array(256);for(let i=0;i<256;i++){let c=i;for(let k=0;k<8;k++)c=c&1?0xEDB88320^(c>>>1):c>>>1;t[i]=c}return t})();
+function crc32(u){let c=0xFFFFFFFF;for(let i=0;i<u.length;i++)c=CT[(c^u[i])&255]^(c>>>8);return(c^0xFFFFFFFF)>>>0}
+function makeZip(files){
+ const enc=new TextEncoder(),parts=[],central=[];let off=0;
+ for(const f of files){
+  const nm=enc.encode(f.name),data=enc.encode(f.text),crc=crc32(data);
+  const lh=new DataView(new ArrayBuffer(30));
+  lh.setUint32(0,0x04034b50,true);lh.setUint16(4,20,true);
+  lh.setUint32(14,crc,true);lh.setUint32(18,data.length,true);lh.setUint32(22,data.length,true);
+  lh.setUint16(26,nm.length,true);
+  parts.push(lh.buffer,nm,data);
+  const cd=new DataView(new ArrayBuffer(46));
+  cd.setUint32(0,0x02014b50,true);cd.setUint16(4,20,true);cd.setUint16(6,20,true);
+  cd.setUint32(16,crc,true);cd.setUint32(20,data.length,true);cd.setUint32(24,data.length,true);
+  cd.setUint16(28,nm.length,true);cd.setUint32(42,off,true);
+  central.push(cd.buffer,nm);
+  off+=30+nm.length+data.length;
+ }
+ let cdSize=0;for(const b of central)cdSize+=b.byteLength;
+ const end=new DataView(new ArrayBuffer(22));
+ end.setUint32(0,0x06054b50,true);end.setUint16(8,files.length,true);end.setUint16(10,files.length,true);
+ end.setUint32(12,cdSize,true);end.setUint32(16,off,true);
+ return new Blob([...parts,...central,end.buffer],{type:'application/zip'});
+}
+
+const $=id=>document.getElementById(id);
+const stage=$('stage'),hist=$('hist'),grid=$('batchGrid');
+let cur=null,locks={},history=[],batch=[];
+
+function render(seed){
+ cur=art(seed,locks,$('word').value);
+ cur.seed=seed;
+ stage.innerHTML=cur.svg;
+ $('seed').value=seed;
+ for(const el of document.querySelectorAll('.val')){
+  const t=el.dataset.t,v=cur.traits;
+  el.textContent=t==='pal'?PALS[v.pal].n:t==='layout'?LAYOUTS[v.layout]:t==='instr'?INSTR[v.instr]:v.name;
+ }
+}
+function lucky(){
+ if(cur){
+  history.unshift({seed:cur.seed,locks:{...locks},word:$('word').value});
+  history=history.slice(0,10);
+  renderHist();
+ }
+ render(Math.floor(Math.random()*1e9));
+}
+function renderHist(){
+ hist.innerHTML='';
+ for(const h of history){
+  const b=document.createElement('button');
+  b.setAttribute('aria-label','Restore seed '+h.seed);
+  b.innerHTML=art(h.seed,h.locks,h.word).svg;
+  b.onclick=()=>{locks={...h.locks};$('word').value=h.word;syncLockUI();render(h.seed);};
+  hist.appendChild(b);
+ }
+}
+function syncLockUI(){
+ for(const b of document.querySelectorAll('[data-l]'))b.classList.toggle('on',locks[b.dataset.l]!=null);
+}
+for(const b of document.querySelectorAll('[data-l]')){
+ b.onclick=()=>{
+  const k=b.dataset.l;
+  if(locks[k]!=null)delete locks[k];
+  else locks[k]=cur.traits[k];
+  syncLockUI();
+ };
+}
+for(const el of document.querySelectorAll('.val')){
+ el.onclick=()=>{
+  const k=el.dataset.t;
+  const max=k==='pal'?PALS.length:k==='layout'?LAYOUTS.length:k==='instr'?INSTR.length:NAMES.length;
+  const curVal=k==='name'?NAMES.indexOf(cur.traits.name):cur.traits[k];
+  const next=(curVal+1)%max;
+  locks[k]=k==='name'?NAMES[next]:next;
+  syncLockUI();
+  render(cur.seed);
+ };
+}
+$('lucky').onclick=lucky;
+document.addEventListener('keydown',e=>{
+ if(e.key.toLowerCase()==='l'&&document.activeElement.tagName!=='INPUT')lucky();
+});
+$('applySeed').onclick=()=>{const v=parseInt($('seed').value,10);if(!isNaN(v))render(v);};
+$('seed').addEventListener('keydown',e=>{if(e.key==='Enter')$('applySeed').click();});
+$('word').addEventListener('input',()=>render(cur.seed));
+function dl(url,fn){const a=document.createElement('a');a.href=url;a.download=fn;a.click();}
+function slug(t){return t.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')||'untitled';}
+$('dlsvg').onclick=()=>dl(URL.createObjectURL(new Blob([cur.svg],{type:'image/svg+xml'})),'micrographic-'+slug(cur.label)+'-'+cur.seed+'.svg');
+$('dlpng').onclick=()=>{
+ const k=parseInt($('pngScale').value,10);
+ const img=new Image();
+ img.onload=()=>{
+  const c=document.createElement('canvas');c.width=W*k;c.height=H*k;
+  c.getContext('2d').drawImage(img,0,0,c.width,c.height);
+  c.toBlob(b=>dl(URL.createObjectURL(b),'micrographic-'+slug(cur.label)+'-'+cur.seed+'.png'));
+ };
+ img.src=URL.createObjectURL(new Blob([cur.svg],{type:'image/svg+xml;charset=utf-8'}));
+};
+$('rollBatch').onclick=()=>{
+ const n=parseInt($('batchN').value,10);
+ batch=[];grid.innerHTML='';
+ for(let i=0;i<n;i++){
+  const seed=Math.floor(Math.random()*1e9);
+  const g=art(seed,locks,$('word').value);
+  g.seed=seed;
+  batch.push(g);
+  const b=document.createElement('button');
+  b.setAttribute('aria-label','Load seed '+seed);
+  b.innerHTML=g.svg;
+  b.onclick=()=>{render(seed);window.scrollTo({top:0,behavior:'smooth'});};
+  grid.appendChild(b);
+ }
+ $('dlzip').disabled=false;$('dlzip').style.opacity=1;
+};
+$('dlzip').onclick=()=>{
+ if(!batch.length)return;
+ const files=batch.map(g=>({name:'micrographic-'+slug(g.label)+'-'+g.seed+'.svg',text:g.svg}));
+ dl(URL.createObjectURL(makeZip(files)),'micrographic-batch-'+batch.length+'.zip');
+};
+render(Math.floor(Math.random()*1e9));
+</script>
+</body>
+</html>
