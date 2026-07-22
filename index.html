@@ -8,9 +8,12 @@
 :root{--bg:#141310;--panel:#1C1B17;--ink:#EFEBE0;--dim:#8A867A;--line:#33312A;--acc:#FF4D00}
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:var(--bg);color:var(--ink);font-family:ui-monospace,'SF Mono',Menlo,Consolas,monospace;font-size:12px;letter-spacing:.05em;padding:28px;min-height:100vh}
-header{display:flex;justify-content:space-between;align-items:baseline;border-bottom:1px solid var(--line);padding-bottom:14px;margin-bottom:24px}
+header{display:flex;justify-content:space-between;align-items:baseline;gap:16px;flex-wrap:wrap;border-bottom:1px solid var(--line);padding-bottom:14px;margin-bottom:24px}
+.htitle{display:flex;align-items:baseline;gap:16px;flex-wrap:wrap}
 h1{font-size:14px;font-weight:400;letter-spacing:.25em}
 header span{color:var(--dim);font-size:11px}
+header a{color:var(--dim);font-size:11px;letter-spacing:.1em;text-decoration:none}
+header a:hover{color:var(--acc)}
 .wrap{display:flex;gap:24px;flex-wrap:wrap;align-items:flex-start;justify-content:center}
 .rail{flex:0 0 196px;display:flex;flex-direction:column;gap:18px;max-height:calc(100vh - 56px);overflow-y:auto;padding-right:4px;position:sticky;top:28px}
 .railsec .railh{font-size:10px;letter-spacing:.2em;color:var(--dim);margin-bottom:10px;position:sticky;top:0;background:var(--bg);padding:3px 0;z-index:1}
@@ -79,7 +82,7 @@ footer{margin-top:32px;border-top:1px solid var(--line);padding-top:12px;color:v
 </style>
 </head>
 <body>
-<header><h1>KOJIMA — MICRO-GRAPHIC GENERATOR</h1><span>V0.6 / AFTER K.A.M.</span></header>
+<header><div class="htitle"><h1>KOJIMA — MICRO-GRAPHIC GENERATOR</h1><a href="https://herokit.app" target="_blank" rel="noopener">FROM THE CREATOR OF HEROKIT ↗</a></div><span>V0.6 / AFTER K.A.M.</span></header>
 <div class="wrap">
   <div class="rail">
     <div class="railsec">
