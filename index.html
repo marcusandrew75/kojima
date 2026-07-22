@@ -42,7 +42,7 @@ button.ghost.on{border-color:var(--acc);color:var(--acc)}
 input[type=text]{background:none;border:1px solid var(--line);color:var(--ink);font:inherit;padding:8px 10px;width:100%;letter-spacing:.15em}
 input[type=text]:focus{outline:none;border-color:var(--ink)}
 select{background:var(--bg);border:1px solid var(--line);color:var(--ink);font:inherit;padding:8px;letter-spacing:.1em}
-.row{display:flex;gap:8px;align-items:center}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .row>*{flex-shrink:0}
 .row .grow{flex:1}
 #status{display:flex;align-items:center;gap:10px;margin-top:14px;flex-wrap:wrap;min-height:22px}
@@ -152,9 +152,11 @@ footer{margin-top:32px;border-top:1px solid var(--line);padding-top:12px;color:v
         <select id="fmt" class="grow" style="flex:1"><option value="square">SQUARE 1:1</option><option value="poster">POSTER 2:3</option><option value="wide">WIDE 2:1 / BANNER</option><option value="avatar">AVATAR CROP 1:1</option></select>
       </div>
       <div class="row">
-        <button id="dlsvg">SVG</button>
-        <button id="dlpng">PNG</button>
+        <button id="dlsvg" style="flex:1">SVG</button>
+        <button id="dlpng" style="flex:1">PNG</button>
         <select id="pngScale"><option value="1">1×</option><option value="2" selected>2×</option><option value="4">4×</option></select>
+      </div>
+      <div class="row" style="margin-top:8px">
         <button id="copysvg" style="flex:1">COPY SVG</button>
       </div>
       <div class="hint">FORMAT APPLIES TO THE PREVIEW + ALL EXPORTS.</div>
@@ -163,9 +165,11 @@ footer{margin-top:32px;border-top:1px solid var(--line);padding-top:12px;color:v
       <h2>BATCH</h2>
       <div class="row">
         <select id="batchN"><option>6</option><option selected>12</option><option>24</option></select>
-        <button id="rollBatch">ROLL BATCH</button>
-        <button id="dlzip" disabled style="opacity:.4">ZIP</button>
-        <button id="dlsheet" disabled style="opacity:.4">SHEET</button>
+        <button id="rollBatch" style="flex:1">ROLL BATCH</button>
+      </div>
+      <div class="row" style="margin-top:8px">
+        <button id="dlzip" disabled style="flex:1;opacity:.4">ZIP</button>
+        <button id="dlsheet" disabled style="flex:1;opacity:.4">SHEET</button>
       </div>
       <div class="hint">BATCH RESPECTS LOCKED TRAITS. SHEET = ONE CONTACT-SHEET POSTER.</div>
     </div>
