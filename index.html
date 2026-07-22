@@ -24,7 +24,7 @@ header span{color:var(--dim);font-size:11px}
 .rtile .del:hover{color:var(--acc);background:var(--bg)}
 .railempty{font-size:10px;color:var(--dim);letter-spacing:.1em}
 .stage{flex:1 1 0;min-width:300px;max-width:calc(100vh - 190px);position:sticky;top:28px;align-self:flex-start}
-.stage svg{width:100%;height:auto;display:block}
+.stage svg{width:100%;height:auto;display:block;max-height:calc(100vh - 110px);margin:0 auto}
 .panel{flex:0 0 324px;min-width:300px;display:flex;flex-direction:column;gap:20px}
 .sec{border:1px solid var(--line);padding:16px}
 .sec h2{font-size:10px;font-weight:400;color:var(--dim);letter-spacing:.25em;margin-bottom:12px}
@@ -79,7 +79,7 @@ footer{margin-top:32px;border-top:1px solid var(--line);padding-top:12px;color:v
 </style>
 </head>
 <body>
-<header><h1>KOJIMA — MICRO-GRAPHIC GENERATOR</h1><span>V0.4 / AFTER K.A.M.</span></header>
+<header><h1>KOJIMA — MICRO-GRAPHIC GENERATOR</h1><span>V0.5 / AFTER K.A.M.</span></header>
 <div class="wrap">
   <div class="rail">
     <div class="railsec">
@@ -148,20 +148,26 @@ footer{margin-top:32px;border-top:1px solid var(--line);padding-top:12px;color:v
     </div>
     <div class="sec">
       <h2>EXPORT</h2>
+      <div class="row" style="margin-bottom:8px">
+        <select id="fmt" class="grow" style="flex:1"><option value="square">SQUARE 1:1</option><option value="poster">POSTER 2:3</option><option value="wide">WIDE 2:1 / BANNER</option><option value="avatar">AVATAR CROP 1:1</option></select>
+      </div>
       <div class="row">
         <button id="dlsvg">SVG</button>
         <button id="dlpng">PNG</button>
-        <select id="pngScale"><option value="1">560PX</option><option value="2" selected>1120PX</option><option value="4">2240PX</option></select>
+        <select id="pngScale"><option value="1">1×</option><option value="2" selected>2×</option><option value="4">4×</option></select>
+        <button id="copysvg" style="flex:1">COPY SVG</button>
       </div>
+      <div class="hint">FORMAT APPLIES TO THE PREVIEW + ALL EXPORTS.</div>
     </div>
     <div class="sec">
       <h2>BATCH</h2>
       <div class="row">
         <select id="batchN"><option>6</option><option selected>12</option><option>24</option></select>
         <button id="rollBatch">ROLL BATCH</button>
-        <button id="dlzip" disabled style="opacity:.4">ZIP (SVG)</button>
+        <button id="dlzip" disabled style="opacity:.4">ZIP</button>
+        <button id="dlsheet" disabled style="opacity:.4">SHEET</button>
       </div>
-      <div class="hint">BATCH RESPECTS LOCKED TRAITS. CLICK A TILE TO LOAD IT.</div>
+      <div class="hint">BATCH RESPECTS LOCKED TRAITS. SHEET = ONE CONTACT-SHEET POSTER.</div>
     </div>
   </div>
 </div>
@@ -429,9 +435,73 @@ function art(seed,locks,word,dens){
  s+=T(W-80,fy+27,String(ri(1,99)).padStart(2,'0')+'/100',10,'end',ink,1);
  return{
   svg:`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" shape-rendering="geometricPrecision">${s}</svg>`,
+  inner:s,bg:P.bg,ink:P.ink,acc:P.acc,palName:P.n,
   traits:{pal:palIdx,layout,instr,name},
   label:(word&&word.trim())?word.trim().toUpperCase():name+'-'+num
  };
+}
+function svgWrap(w,h,inner){return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w} ${h}" shape-rendering="geometricPrecision">${inner}</svg>`;}
+function ctext(x,y,str,ink,fs,anch,ls){return `<text x="${x}" y="${y}" font-family="${MONO}" font-size="${fs}" text-anchor="${anch||'start'}" fill="${ink}" letter-spacing="${ls==null?1.5:ls}">${str}</text>`;}
+function cmarks(w,h,ink,inset){const d=6;let s='';for(const[x,y]of[[inset,inset],[w-inset,inset],[inset,h-inset],[w-inset,h-inset]])s+=`<line x1="${x-d}" y1="${y}" x2="${x+d}" y2="${y}" stroke="${ink}" stroke-width="1"/><line x1="${x}" y1="${y-d}" x2="${x}" y2="${y+d}" stroke="${ink}" stroke-width="1"/>`;return s;}
+function place(x,y,w,h,inner){return `<svg x="${x}" y="${y}" width="${w}" height="${h}" viewBox="0 0 560 560">${inner}</svg>`;}
+function compose(fmt,b){
+ const bg=b.bg,ink=b.ink;
+ if(fmt==='avatar'){
+  const V=560;
+  let s=`<rect width="${V}" height="${V}" fill="${bg}"/>`;
+  s+=`<svg x="0" y="0" width="${V}" height="${V}" viewBox="120 106 320 320">${b.inner}</svg>`;
+  s+=`<rect x="12.5" y="12.5" width="${V-25}" height="${V-25}" fill="none" stroke="${ink}" stroke-width="1.25"/>`;
+  s+=cmarks(V,V,ink,28);
+  s+=ctext(V/2,V-22,'◆ '+esc(b.label),ink,11,'middle',2);
+  return{svg:svgWrap(V,V,s),w:V,h:V,suffix:'avatar'};
+ }
+ if(fmt==='poster'){
+  const w=640,h=960,m=60,cw=w-2*m,cs=cw/560,ch=560*cs,cyTop=150;
+  let s=`<rect width="${w}" height="${h}" fill="${bg}"/>`;
+  s+=ctext(m,96,'KOJIMA — MICRO-GRAPHIC PLATE',ink,12,'start',2);
+  s+=ctext(w-m,96,'N°'+String((b.seed||0)%10000).padStart(4,'0'),ink,12,'end',1);
+  s+=`<line x1="${m}" y1="110" x2="${w-m}" y2="110" stroke="${ink}" stroke-width="0.75"/>`;
+  s+=place(m,cyTop,cw,ch,b.inner);
+  const by=cyTop+ch+50;
+  s+=`<line x1="${m}" y1="${by}" x2="${w-m}" y2="${by}" stroke="${ink}" stroke-width="0.75"/>`;
+  s+=ctext(m,by+26,esc(b.label)+' · '+LAYOUTS[b.traits.layout]+' · '+INSTR[b.traits.instr]+' · '+b.palName,ink,11,'start',1.5);
+  s+=cmarks(w,h,ink,30);
+  return{svg:svgWrap(w,h,s),w,h,suffix:'poster'};
+ }
+ if(fmt==='wide'){
+  const w=1200,h=600,m=54,ch=h-2*m,cs=ch/560,cw=560*cs;
+  let s=`<rect width="${w}" height="${h}" fill="${bg}"/>`;
+  s+=place(m,m,cw,ch,b.inner);
+  const px=m+cw+54,tx=px+34;
+  s+=`<line x1="${px}" y1="${m}" x2="${px}" y2="${h-m}" stroke="${ink}" stroke-width="1"/>`;
+  s+=ctext(tx,m+70,esc(b.label),ink,40,'start',3);
+  s+=ctext(tx,m+98,'MICRO-GRAPHIC',ink,12,'start',3);
+  s+=`<line x1="${tx}" y1="${m+118}" x2="${w-m}" y2="${m+118}" stroke="${ink}" stroke-width="0.5"/>`;
+  ['SYSTEM / '+INSTR[b.traits.instr],'LAYOUT / '+LAYOUTS[b.traits.layout],'PALETTE / '+b.palName,'SEED / '+(b.seed||0)].forEach((t,i)=>{s+=ctext(tx,m+152+i*26,t,ink,12,'start',1.5);});
+  let bx=tx;const by=h-m-40;for(let k=0;k<26;k++){const bw=[1.5,2.5,4][k%3];s+=`<rect x="${bx}" y="${by}" width="${bw}" height="26" fill="${ink}"/>`;bx+=bw+3;}
+  s+=ctext(w-m,h-m-8,'KOJIMA — AFTER K.A.M.',ink,10,'end',1.5);
+  s+=cmarks(w,h,ink,28);
+  return{svg:svgWrap(w,h,s),w,h,suffix:'wide'};
+ }
+ return{svg:b.svg,w:560,h:560,suffix:'square'};
+}
+function contactSheet(items){
+ const n=items.length,cols=n<=6?3:n<=12?4:6,rows=Math.ceil(n/cols);
+ const W2=1200,m=50,gap=18,cap=22,head=90;
+ const cell=(W2-2*m-(cols-1)*gap)/cols;
+ const H2=head+rows*(cell+cap+gap)-gap+m+20;
+ const ink='#EFEBE0',board='#17160F';
+ let s=`<rect width="${W2}" height="${H2}" fill="${board}"/>`;
+ s+=ctext(m,54,'KOJIMA — CONTACT SHEET',ink,16,'start',3);
+ s+=ctext(W2-m,54,n+' SPECIMENS',ink,12,'end',1.5);
+ s+=`<line x1="${m}" y1="70" x2="${W2-m}" y2="70" stroke="${ink}" stroke-width="0.75"/>`;
+ items.forEach((it,i)=>{
+  const c=i%cols,r=Math.floor(i/cols),x=m+c*(cell+gap),y=head+r*(cell+cap+gap);
+  s+=`<rect x="${x}" y="${y}" width="${cell}" height="${cell}" fill="none" stroke="${ink}" stroke-width="0.75"/>`;
+  s+=place(x,y,cell,cell,it.inner);
+  s+=ctext(x,y+cell+15,(it.edition?('◆'+String(it.edition).padStart(3,'0')+' '):'')+esc(it.label),ink,10,'start',1);
+ });
+ return{svg:svgWrap(W2,H2,s),w:W2,h:H2};
 }
 
 const CT=(()=>{const t=new Uint32Array(256);for(let i=0;i<256;i++){let c=i;for(let k=0;k<8;k++)c=c&1?0xEDB88320^(c>>>1):c>>>1;t[i]=c}return t})();
@@ -461,7 +531,7 @@ function makeZip(files){
 
 const $=id=>document.getElementById(id);
 const stage=$('stage'),hist=$('hist'),grid=$('batchGrid');
-let cur=null,locks={},histArr=[],batch=[],dens=0.5;
+let cur=null,locks={},histArr=[],batch=[],dens=0.5,fmt='square';
 const CPKEY='kojima_palettes';
 function loadCP(){try{return JSON.parse(localStorage.getItem(CPKEY))||[]}catch(e){return[]}}
 function saveCP(){try{localStorage.setItem(CPKEY,JSON.stringify(customPals))}catch(e){}}
@@ -507,7 +577,7 @@ function hashToState(){
 function render(seed){
  cur=art(seed,locks,$('word').value,dens);
  cur.seed=seed;
- stage.innerHTML=cur.svg;
+ stage.innerHTML=compose(fmt,cur).svg;
  $('seed').value=seed;
  for(const el of document.querySelectorAll('.val')){
   const t=el.dataset.t,v=cur.traits;
@@ -629,17 +699,15 @@ window.addEventListener('hashchange',()=>{const st=hashToState();if(st)loadState
 
 function dl(url,fn){const a=document.createElement('a');a.href=url;a.download=fn;a.click();}
 function slug(t){return t.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')||'untitled';}
-$('dlsvg').onclick=()=>dl(URL.createObjectURL(new Blob([cur.svg],{type:'image/svg+xml'})),'kojima-'+slug(cur.label)+'-'+cur.seed+'.svg');
-$('dlpng').onclick=()=>{
- const k=parseInt($('pngScale').value,10);
+function rasterize(svg,w,h,scale,fn){
  const img=new Image();
- img.onload=()=>{
-  const c=document.createElement('canvas');c.width=W*k;c.height=H*k;
-  c.getContext('2d').drawImage(img,0,0,c.width,c.height);
-  c.toBlob(b=>dl(URL.createObjectURL(b),'kojima-'+slug(cur.label)+'-'+cur.seed+'.png'));
- };
- img.src=URL.createObjectURL(new Blob([cur.svg],{type:'image/svg+xml;charset=utf-8'}));
-};
+ img.onload=()=>{const c=document.createElement('canvas');c.width=Math.round(w*scale);c.height=Math.round(h*scale);c.getContext('2d').drawImage(img,0,0,c.width,c.height);c.toBlob(b=>dl(URL.createObjectURL(b),fn));};
+ img.src=URL.createObjectURL(new Blob([svg],{type:'image/svg+xml;charset=utf-8'}));
+}
+$('fmt').onchange=()=>{fmt=$('fmt').value;if(cur)render(cur.seed);};
+$('dlsvg').onclick=()=>{const o=compose(fmt,cur);dl(URL.createObjectURL(new Blob([o.svg],{type:'image/svg+xml'})),'kojima-'+slug(cur.label)+'-'+o.suffix+'-'+cur.seed+'.svg');};
+$('dlpng').onclick=()=>{const o=compose(fmt,cur),k=parseInt($('pngScale').value,10);rasterize(o.svg,o.w,o.h,k,'kojima-'+slug(cur.label)+'-'+o.suffix+'-'+cur.seed+'.png');};
+$('copysvg').onclick=async()=>{const o=compose(fmt,cur);try{await navigator.clipboard.writeText(o.svg);flash('copysvg','COPIED ✓');}catch(e){window.prompt('Copy SVG:',o.svg);}};
 $('rollBatch').onclick=()=>{
  const n=parseInt($('batchN').value,10);
  const snapLocks={...locks},snapWord=$('word').value,snapDens=dens;
@@ -658,11 +726,17 @@ $('rollBatch').onclick=()=>{
   grid.appendChild(b);
  }
  $('dlzip').disabled=false;$('dlzip').style.opacity=1;
+ $('dlsheet').disabled=false;$('dlsheet').style.opacity=1;
 };
 $('dlzip').onclick=()=>{
  if(!batch.length)return;
  const files=batch.map(g=>({name:'kojima-'+slug(g.label)+'-'+g.seed+'.svg',text:g.svg}));
  dl(URL.createObjectURL(makeZip(files)),'kojima-batch-'+batch.length+'.zip');
+};
+$('dlsheet').onclick=()=>{
+ if(!batch.length)return;
+ const cs=contactSheet(batch);
+ rasterize(cs.svg,cs.w,cs.h,2,'kojima-contact-sheet-'+batch.length+'.png');
 };
 
 for(const b of document.querySelectorAll('[data-r]')){

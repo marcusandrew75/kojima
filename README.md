@@ -33,9 +33,13 @@ Gear Solid, and the technical UI craft of Death Stranding — hence the name.
 - **Deterministic seeds** — every graphic is reproducible from its seed; paste a
   seed to regenerate it exactly.
 - **History** — a 10-deep strip restores seed, locks, and wordmark together.
-- **Batch mode** — roll 6, 12, or 24 at once (respecting locks) and download the
-  whole set as a `.zip` of SVGs.
-- **Export** — SVG, or PNG at 560, 1120, or 2240px.
+- **Canvas formats** — export as square (1:1), poster (2:3), wide banner (2:1),
+  or a tight avatar crop of the instrument. The format applies to the live
+  preview and all exports.
+- **Batch mode** — roll 6, 12, or 24 at once (respecting locks), download the
+  whole set as a `.zip` of SVGs, or render them into a single contact-sheet
+  poster PNG.
+- **Export** — SVG or PNG (1×/2×/4×), plus a copy-SVG-to-clipboard button.
 - **Shareable links** — every piece encodes its seed, locks, and wordmark into
   the URL; **Copy shareable link** gives you a URL that reopens the exact graphic.
 - **Collection with editioning** — **Mint** a piece to save it to your browser
