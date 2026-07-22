@@ -459,32 +459,38 @@ function compose(fmt,b){
   s+=ctext(V/2,V-22,'◆ '+esc(b.label),ink,11,'middle',2);
   return{svg:svgWrap(V,V,s),w:V,h:V,suffix:'avatar'};
  }
+ function barcodeR(x2,y,h2,bars,ink2){let seg=[],tot=0;for(let k=0;k<bars;k++){const v=[1.5,2.5,4][k%3];seg.push(v);tot+=v+3;}let sx=x2-tot,out='';for(const v of seg){out+=`<rect x="${sx.toFixed(1)}" y="${y}" width="${v}" height="${h2}" fill="${ink2}"/>`;sx+=v+3;}return out;}
+ function barcodeL(x1,y,h2,bars,ink2){let sx=x1,out='';for(let k=0;k<bars;k++){const v=[1.5,2.5,4][k%3];out+=`<rect x="${sx.toFixed(1)}" y="${y}" width="${v}" height="${h2}" fill="${ink2}"/>`;sx+=v+3;}return out;}
  if(fmt==='poster'){
-  const w=640,h=960,m=60,cw=w-2*m,cs=cw/560,ch=560*cs,cyTop=150;
+  const w=640,h=960,fi=44,m=44,cw=w-2*m,cs=cw/560,ch=560*cs,cyTop=140;
   let s=`<rect width="${w}" height="${h}" fill="${bg}"/>`;
-  s+=ctext(m,96,'KOJIMA — MICRO-GRAPHIC PLATE',ink,12,'start',2);
-  s+=ctext(w-m,96,'N°'+String((b.seed||0)%10000).padStart(4,'0'),ink,12,'end',1);
-  s+=`<line x1="${m}" y1="110" x2="${w-m}" y2="110" stroke="${ink}" stroke-width="0.75"/>`;
+  s+=`<rect x="${fi+0.5}" y="${fi+0.5}" width="${w-2*fi-1}" height="${h-2*fi-1}" fill="none" stroke="${ink}" stroke-width="1.25"/>`;
+  s+=cmarks(w,h,ink,fi+18);
+  s+=ctext(m,92,'KOJIMA — MICRO-GRAPHIC',ink,12,'start',2);
+  s+=ctext(w-m,92,'N°'+String((b.seed||0)%10000).padStart(4,'0'),ink,12,'end',1);
+  s+=`<line x1="${m}" y1="106" x2="${w-m}" y2="106" stroke="${ink}" stroke-width="0.75"/>`;
   s+=place(m,cyTop,cw,ch,b.inner);
-  const by=cyTop+ch+50;
-  s+=`<line x1="${m}" y1="${by}" x2="${w-m}" y2="${by}" stroke="${ink}" stroke-width="0.75"/>`;
-  s+=ctext(m,by+26,esc(b.label)+' · '+LAYOUTS[b.traits.layout]+' · '+INSTR[b.traits.instr]+' · '+b.palName,ink,11,'start',1.5);
-  s+=cmarks(w,h,ink,30);
+  const py=cyTop+ch+42;
+  s+=`<line x1="${m}" y1="${py}" x2="${w-m}" y2="${py}" stroke="${ink}" stroke-width="0.75"/>`;
+  s+=ctext(m,py+34,esc(b.label),ink,25,'start',3);
+  s+=ctext(m,py+56,LAYOUTS[b.traits.layout]+' / '+INSTR[b.traits.instr]+' / '+b.palName,ink,10,'start',1.5);
+  s+=barcodeR(w-m,py+20,30,20,ink);
+  s+=ctext(w-m,py+56,'PLATE / 100',ink,10,'end',1);
   return{svg:svgWrap(w,h,s),w,h,suffix:'poster'};
  }
  if(fmt==='wide'){
-  const w=1200,h=600,m=54,ch=h-2*m,cs=ch/560,cw=560*cs;
+  const w=1200,h=600,m=50,ch=h-2*m,cs=ch/560,cw=560*cs;
   let s=`<rect width="${w}" height="${h}" fill="${bg}"/>`;
+  s+=cmarks(w,h,ink,30);
   s+=place(m,m,cw,ch,b.inner);
-  const px=m+cw+54,tx=px+34;
+  const px=m+cw+52,tx=px+42,rgt=w-m;
   s+=`<line x1="${px}" y1="${m}" x2="${px}" y2="${h-m}" stroke="${ink}" stroke-width="1"/>`;
-  s+=ctext(tx,m+70,esc(b.label),ink,40,'start',3);
-  s+=ctext(tx,m+98,'MICRO-GRAPHIC',ink,12,'start',3);
-  s+=`<line x1="${tx}" y1="${m+118}" x2="${w-m}" y2="${m+118}" stroke="${ink}" stroke-width="0.5"/>`;
-  ['SYSTEM / '+INSTR[b.traits.instr],'LAYOUT / '+LAYOUTS[b.traits.layout],'PALETTE / '+b.palName,'SEED / '+(b.seed||0)].forEach((t,i)=>{s+=ctext(tx,m+152+i*26,t,ink,12,'start',1.5);});
-  let bx=tx;const by=h-m-40;for(let k=0;k<26;k++){const bw=[1.5,2.5,4][k%3];s+=`<rect x="${bx}" y="${by}" width="${bw}" height="26" fill="${ink}"/>`;bx+=bw+3;}
-  s+=ctext(w-m,h-m-8,'KOJIMA — AFTER K.A.M.',ink,10,'end',1.5);
-  s+=cmarks(w,h,ink,28);
+  s+=ctext(tx,m+66,'KOJIMA — MICRO-GRAPHIC',ink,12,'start',3);
+  s+=ctext(tx,m+118,esc(b.label),ink,42,'start',3);
+  s+=`<line x1="${tx}" y1="${m+140}" x2="${rgt}" y2="${m+140}" stroke="${ink}" stroke-width="0.5"/>`;
+  ['SYSTEM / '+INSTR[b.traits.instr],'LAYOUT / '+LAYOUTS[b.traits.layout],'PALETTE / '+b.palName,'SEED / '+(b.seed||0)].forEach((t,i)=>{s+=ctext(tx,m+178+i*28,t,ink,13,'start',1.5);});
+  s+=barcodeL(tx,h-m-48,28,32,ink);
+  s+=ctext(rgt,h-m-6,'AFTER K.A.M.',ink,10,'end',2);
   return{svg:svgWrap(w,h,s),w,h,suffix:'wide'};
  }
  return{svg:b.svg,w:560,h:560,suffix:'square'};
