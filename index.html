@@ -201,7 +201,7 @@ const NAMES=['ORBIT','SIGNAL','RELAY','SECTOR','FLUX','MODULE','VECTOR','PHASE',
 const INSTR=['TARGET','BURST','DIAL','ORBIT','ARC-GRID','ECLIPSE','WAVE','CONTOUR','BARS','GLOBE','RADAR','FIELD'];
 const LAYOUTS=['CENTERED','SPLIT','OFFSET','DUO'];
 const AFFIN=[3,6,10,4,7,8,11,2,9,10,5,1,10,11,8,0];
-const FONTS=[{n:'MONO',f:MONO,ls:4},{n:'CONDENSED',f:"'Arial Narrow','Helvetica Neue',Arial,sans-serif",ls:1.5},{n:'GROTESK',f:"'Helvetica Neue',Helvetica,Arial,sans-serif",ls:0.5}];
+const FONTS=[{n:'MONO',f:MONO,ls:4,w:400},{n:'CONDENSED',f:"'Impact','Haettenschweiler','Arial Narrow',sans-serif",ls:0.5,w:400},{n:'GROTESK',f:"'Helvetica Neue',Arial,sans-serif",ls:3,w:500}];
 function recolorAccent(str,acc){return str.replace(/(fill|stroke)="(?!none")[^"]*"/g,'$1="'+acc+'"');}
 function grainOverlay(w,h,ink,id){return `<defs><filter id="${id}" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" stitchTiles="stitch" result="n"/><feColorMatrix in="n" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.33 0.33 0.33 0 0" result="a"/><feFlood flood-color="${ink}" result="f"/><feComposite in="f" in2="a" operator="in"/></filter></defs><rect x="0" y="0" width="${w}" height="${h}" filter="url(#${id})" opacity="0.12"/>`;}
 function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
@@ -221,7 +221,7 @@ function rarity(tr){
 function art(seed,locks,word,dens,opts){
  dens=(dens==null)?0.5:dens;
  opts=opts||{};
- const FONT=opts.font||MONO,FLS=opts.fls!=null?opts.fls:4,RISO=!!opts.riso;
+ const FONT=opts.font||MONO,FLS=opts.fls!=null?opts.fls:4,FW=opts.fw||400,RISO=!!opts.riso;
  const AP=PALS.concat(customPals);
  const R=mulberry32(seed);
  const pick=a=>a[Math.floor(R()*a.length)];
@@ -450,14 +450,14 @@ function art(seed,locks,word,dens,opts){
  const wm=(word&&word.trim())?esc(word.trim().toUpperCase()):name+'—'+String(num).padStart(2,'0');
  let chromeBottom='';
  chromeBottom+=L(52,fy,W-52,fy,1);
- chromeBottom+=`<text x="52" y="${fy+34}" font-family="${FONT}" font-size="26" fill="${ink}" letter-spacing="${FLS}">${wm}</text>`;
+ chromeBottom+=`<text x="52" y="${fy+34}" font-family="${FONT}" font-size="26" font-weight="${FW}" fill="${ink}" letter-spacing="${FLS}">${wm}</text>`;
  chromeBottom+=T(52,fy+56,'SYS.'+ri(1,9)+' / '+LAYOUTS[layout]+' / '+INSTR[instr]+' / '+P.n,9,'start',ink,1.2);
  chromeBottom+=`<rect x="${W-66}" y="${fy+16}" width="14" height="14" fill="${acc}"/>`;
  chromeBottom+=T(W-80,fy+27,String(ri(1,99)).padStart(2,'0')+'/100',10,'end',ink,1);
  const fg=chromeTop+draw+chromeBottom;
  let s;
  if(RISO){
-  const ghost=`<g transform="translate(3,3.5)" opacity="0.9">`+recolorAccent(fg,acc)+`</g>`;
+  const ghost=`<g transform="translate(2,2)" opacity="0.8">`+recolorAccent(fg,acc)+`</g>`;
   s=bgRect+ghost+fg+grainOverlay(W,H,ink,'gr'+seed);
  }else s=bgRect+fg;
  return{
@@ -469,15 +469,15 @@ function art(seed,locks,word,dens,opts){
  };
 }
 function svgWrap(w,h,inner){return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w} ${h}" shape-rendering="geometricPrecision">${inner}</svg>`;}
-function ctext(x,y,str,ink,fs,anch,ls,font){return `<text x="${x}" y="${y}" font-family="${font||MONO}" font-size="${fs}" text-anchor="${anch||'start'}" fill="${ink}" letter-spacing="${ls==null?1.5:ls}">${str}</text>`;}
+function ctext(x,y,str,ink,fs,anch,ls,font,fw){return `<text x="${x}" y="${y}" font-family="${font||MONO}" font-size="${fs}" font-weight="${fw||400}" text-anchor="${anch||'start'}" fill="${ink}" letter-spacing="${ls==null?1.5:ls}">${str}</text>`;}
 function cmarks(w,h,ink,inset){const d=6;let s='';for(const[x,y]of[[inset,inset],[w-inset,inset],[inset,h-inset],[w-inset,h-inset]])s+=`<line x1="${x-d}" y1="${y}" x2="${x+d}" y2="${y}" stroke="${ink}" stroke-width="1"/><line x1="${x}" y1="${y-d}" x2="${x}" y2="${y+d}" stroke="${ink}" stroke-width="1"/>`;return s;}
 function place(x,y,w,h,inner){return `<svg x="${x}" y="${y}" width="${w}" height="${h}" viewBox="0 0 560 560">${inner}</svg>`;}
 function compose(fmt,b,opts){
  opts=opts||{};
- const WF=opts.font||MONO,RISO=!!opts.riso;
+ const WF=opts.font||MONO,WFW=opts.fw||400,RISO=!!opts.riso;
  const bg=b.bg,ink=b.ink,acc=b.acc;
  const art=b.art||b.inner;
- const ghost=(x,y,w,h,vb)=>RISO&&b.draw?`<svg x="${x+3}" y="${y+3.5}" width="${w}" height="${h}"${vb?` viewBox="${vb}"`:' viewBox="0 0 560 560"'} opacity="0.9">${recolorAccent(b.draw,acc)}</svg>`:'';
+ const ghost=(x,y,w,h,vb)=>RISO&&b.draw?`<svg x="${x+2}" y="${y+2}" width="${w}" height="${h}"${vb?` viewBox="${vb}"`:' viewBox="0 0 560 560"'} opacity="0.8">${recolorAccent(b.draw,acc)}</svg>`:'';
  function barcodeR(x2,y,h2,bars,ink2){let seg=[],tot=0;for(let k=0;k<bars;k++){const v=[1.5,2.5,4][k%3];seg.push(v);tot+=v+3;}let sx=x2-tot,out='';for(const v of seg){out+=`<rect x="${sx.toFixed(1)}" y="${y}" width="${v}" height="${h2}" fill="${ink2}"/>`;sx+=v+3;}return out;}
  function barcodeL(x1,y,h2,bars,ink2){let sx=x1,out='';for(let k=0;k<bars;k++){const v=[1.5,2.5,4][k%3];out+=`<rect x="${sx.toFixed(1)}" y="${y}" width="${v}" height="${h2}" fill="${ink2}"/>`;sx+=v+3;}return out;}
  if(fmt==='avatar'){
@@ -506,7 +506,7 @@ function compose(fmt,b,opts){
   s+=place(mx,cyTop,cw,ch,art);
   const py=cyTop+ch+46;
   s+=`<line x1="${mx}" y1="${py}" x2="${w-mx}" y2="${py}" stroke="${ink}" stroke-width="0.75"/>`;
-  s+=ctext(mx,py+38,esc(b.label),ink,30,'start',3,WF);
+  s+=ctext(mx,py+38,esc(b.label),ink,30,'start',3,WF,WFW);
   s+=ctext(mx,py+62,LAYOUTS[b.traits.layout]+' / '+INSTR[b.traits.instr]+' / '+b.palName,ink,10,'start',1.5);
   s+=barcodeR(w-mx,py+22,34,20,ink);
   s+=ctext(w-mx,py+62,'PLATE / 100',ink,10,'end',1);
@@ -524,7 +524,7 @@ function compose(fmt,b,opts){
   const px=m+cw+54,tx=px+42,rgt=w-m;
   s+=`<line x1="${px}" y1="${m}" x2="${px}" y2="${h-m}" stroke="${ink}" stroke-width="1"/>`;
   s+=ctext(tx,m+66,'KOJIMA — MICRO-GRAPHIC',ink,12,'start',3);
-  s+=ctext(tx,m+118,esc(b.label),ink,42,'start',3,WF);
+  s+=ctext(tx,m+118,esc(b.label),ink,42,'start',3,WF,WFW);
   s+=`<line x1="${tx}" y1="${m+140}" x2="${rgt}" y2="${m+140}" stroke="${ink}" stroke-width="0.5"/>`;
   ['SYSTEM / '+INSTR[b.traits.instr],'LAYOUT / '+LAYOUTS[b.traits.layout],'PALETTE / '+b.palName,'SEED / '+(b.seed||0)].forEach((t,i)=>{s+=ctext(tx,m+178+i*28,t,ink,13,'start',1.5);});
   s+=barcodeL(tx,h-m-48,28,32,ink);
@@ -581,7 +581,7 @@ function makeZip(files){
 const $=id=>document.getElementById(id);
 const stage=$('stage'),hist=$('hist'),grid=$('batchGrid');
 let cur=null,locks={},histArr=[],batch=[],dens=0.5,fmt='square',wfi=0,riso=false;
-function curOpts(){return{font:FONTS[wfi].f,fls:FONTS[wfi].ls,riso};}
+function curOpts(){return{font:FONTS[wfi].f,fls:FONTS[wfi].ls,fw:FONTS[wfi].w,riso};}
 const CPKEY='kojima_palettes';
 function loadCP(){try{return JSON.parse(localStorage.getItem(CPKEY))||[]}catch(e){return[]}}
 function saveCP(){try{localStorage.setItem(CPKEY,JSON.stringify(customPals))}catch(e){}}
@@ -660,7 +660,7 @@ function renderHist(){
  hist.innerHTML='';
  $('histEmpty').style.display=histArr.length?'none':'block';
  for(const h of histArr){
-  const g=art(h.seed,h.locks,h.word,h.dens,{font:FONTS[h.wfi||0].f,fls:FONTS[h.wfi||0].ls,riso:h.riso}),rr=rarity(g.traits);
+  const g=art(h.seed,h.locks,h.word,h.dens,{font:FONTS[h.wfi||0].f,fls:FONTS[h.wfi||0].ls,fw:FONTS[h.wfi||0].w,riso:h.riso}),rr=rarity(g.traits);
   const tile=document.createElement('div');
   tile.className='rtile'+(rr.tier!=='COMMON'?' tile-rare':'');
   tile.title='SEED '+h.seed+(rr.tier!=='COMMON'?' · '+rr.tier:'');
@@ -727,7 +727,7 @@ function renderColl(){
   const tile=document.createElement('div');
   tile.className='rtile'+(rr.tier!=='COMMON'?' tile-rare':'');
   tile.title=ed+' '+item.label+(rr.tier!=='COMMON'?' · '+rr.tier+' 1 of ~'+rr.odds:'');
-  tile.innerHTML=art(item.seed,item.locks,item.word,item.dens,{font:FONTS[item.wfi||0].f,fls:FONTS[item.wfi||0].ls,riso:item.riso}).svg+'<span class="ed">'+ed+'</span>';
+  tile.innerHTML=art(item.seed,item.locks,item.word,item.dens,{font:FONTS[item.wfi||0].f,fls:FONTS[item.wfi||0].ls,fw:FONTS[item.wfi||0].w,riso:item.riso}).svg+'<span class="ed">'+ed+'</span>';
   tile.onclick=()=>loadState(item.seed,item.locks,item.word,item.dens,{wfi:item.wfi,riso:item.riso});
   const del=document.createElement('button');del.className='del';del.textContent='×';
   del.setAttribute('aria-label','Remove edition '+item.edition);
