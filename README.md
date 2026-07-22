@@ -23,7 +23,12 @@ Gear Solid, and the technical UI craft of Death Stranding — hence the name.
 - **4 layout archetypes** — centered hero, split panel, offset asymmetric, and
   duo. Composition uses an exclusive slot system, so elements never overlap.
 - **Lockable traits** — pin the palette, layout, instrument, or name, then hit
-  lucky to reroll only what's unlocked. Click any trait value to cycle it.
+  lucky to reroll only what's unlocked. Click any trait value to cycle it, or hit
+  its ⟳ button to reroll just that trait.
+- **Complexity dial** — one calm↔dense slider scales tick density, decoration,
+  and detail across the whole piece.
+- **Palette editor** — define your own bg/ink/accent triple and save named
+  palettes to your browser; shareable links carry a custom palette with them.
 - **Custom wordmark** — type your own text into the title block.
 - **Deterministic seeds** — every graphic is reproducible from its seed; paste a
   seed to regenerate it exactly.

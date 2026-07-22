@@ -57,11 +57,29 @@ select{background:var(--bg);border:1px solid var(--line);color:var(--ink);font:i
 .tilegrid svg{width:100%;height:auto;display:block}
 .tile-rare{outline:1px solid var(--acc);outline-offset:-1px}
 .hint{color:var(--dim);font-size:10px;margin-top:10px;letter-spacing:.15em}
+.trait .rr{border-color:var(--line);color:var(--dim);padding:6px 9px;font-size:12px;line-height:1}
+.trait .rr:hover{border-color:var(--acc);color:var(--acc);background:none}
+.slider{display:flex;align-items:center;gap:10px}
+.slider .ends{font-size:9px;color:var(--dim);letter-spacing:.1em}
+.slider #cxout{width:30px;text-align:right;font-size:11px}
+input[type=range]{-webkit-appearance:none;appearance:none;flex:1;height:2px;background:var(--line);outline:none}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;background:var(--acc);cursor:pointer;border-radius:0}
+input[type=range]::-moz-range-thumb{width:14px;height:14px;background:var(--acc);border:none;cursor:pointer;border-radius:0}
+.swatches{display:flex;gap:8px;margin-bottom:10px}
+.swatch{flex:1;display:flex;flex-direction:column;gap:5px;align-items:center}
+.swatch label{font-size:9px;color:var(--dim);letter-spacing:.1em}
+input[type=color]{width:100%;height:32px;border:1px solid var(--line);background:none;padding:2px;cursor:pointer}
+.cpal{display:flex;align-items:center;gap:7px;margin-top:8px;font-size:10px;letter-spacing:.1em}
+.cpal .sw{width:13px;height:13px;border:1px solid var(--line);flex-shrink:0}
+.cpal .nm{flex:1;cursor:pointer;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cpal .nm:hover{color:var(--acc)}
+.cpal .x{border:none;background:none;color:var(--dim);cursor:pointer;padding:0 2px;font-size:13px;letter-spacing:0}
+.cpal .x:hover{color:var(--acc);background:none}
 footer{margin-top:32px;border-top:1px solid var(--line);padding-top:12px;color:var(--dim);font-size:10px;letter-spacing:.2em}
 </style>
 </head>
 <body>
-<header><h1>KOJIMA — MICRO-GRAPHIC GENERATOR</h1><span>V0.3 / AFTER K.A.M.</span></header>
+<header><h1>KOJIMA — MICRO-GRAPHIC GENERATOR</h1><span>V0.4 / AFTER K.A.M.</span></header>
 <div class="wrap">
   <div class="rail">
     <div class="railsec">
@@ -82,11 +100,32 @@ footer{margin-top:32px;border-top:1px solid var(--line);padding-top:12px;color:v
   <div class="panel">
     <button class="big" id="lucky">◇ Feeling lucky (L)</button>
     <div class="sec">
-      <h2>TRAITS — CLICK VALUE TO CYCLE / LOCK TO PIN</h2>
-      <div class="trait"><label>PALETTE</label><div class="val" data-t="pal"></div><button class="ghost" data-l="pal">LOCK</button></div>
-      <div class="trait"><label>LAYOUT</label><div class="val" data-t="layout"></div><button class="ghost" data-l="layout">LOCK</button></div>
-      <div class="trait"><label>INSTRUMENT</label><div class="val" data-t="instr"></div><button class="ghost" data-l="instr">LOCK</button></div>
-      <div class="trait"><label>NAME</label><div class="val" data-t="name"></div><button class="ghost" data-l="name">LOCK</button></div>
+      <h2>TRAITS — CLICK VALUE TO CYCLE / ⟳ REROLL / LOCK TO PIN</h2>
+      <div class="trait"><label>PALETTE</label><div class="val" data-t="pal"></div><button class="ghost rr" data-r="pal" aria-label="Reroll palette" title="Reroll palette">⟳</button><button class="ghost" data-l="pal">LOCK</button></div>
+      <div class="trait"><label>LAYOUT</label><div class="val" data-t="layout"></div><button class="ghost rr" data-r="layout" aria-label="Reroll layout" title="Reroll layout">⟳</button><button class="ghost" data-l="layout">LOCK</button></div>
+      <div class="trait"><label>INSTRUMENT</label><div class="val" data-t="instr"></div><button class="ghost rr" data-r="instr" aria-label="Reroll instrument" title="Reroll instrument">⟳</button><button class="ghost" data-l="instr">LOCK</button></div>
+      <div class="trait"><label>NAME</label><div class="val" data-t="name"></div><button class="ghost rr" data-r="name" aria-label="Reroll name" title="Reroll name">⟳</button><button class="ghost" data-l="name">LOCK</button></div>
+    </div>
+    <div class="sec">
+      <h2>COMPLEXITY</h2>
+      <div class="slider">
+        <span class="ends">CALM</span>
+        <input type="range" id="complexity" min="0" max="100" step="1" value="50">
+        <span class="ends">DENSE</span>
+        <span id="cxout">50</span>
+      </div>
+      <div class="hint">SCALES TICK DENSITY, DECORATION + DETAIL ACROSS THE WHOLE PIECE.</div>
+    </div>
+    <div class="sec">
+      <h2>PALETTE EDITOR</h2>
+      <div class="swatches">
+        <div class="swatch"><label>BG</label><input type="color" id="cpBg" value="#101010"></div>
+        <div class="swatch"><label>INK</label><input type="color" id="cpInk" value="#EFEBE0"></div>
+        <div class="swatch"><label>ACCENT</label><input type="color" id="cpAcc" value="#FF4D00"></div>
+      </div>
+      <div class="row"><input type="text" id="cpName" maxlength="12" placeholder="PALETTE NAME" class="grow" style="flex:1"><button id="cpAdd">ADD</button></div>
+      <div id="cpList"></div>
+      <div class="hint">SAVED TO THIS BROWSER. CLICK A SAVED PALETTE TO APPLY + LOCK IT.</div>
     </div>
     <div class="sec">
       <h2>WORDMARK + SEED</h2>
@@ -160,7 +199,9 @@ function rarity(tr){
  return{tier,flags,odds:flags.length?Math.round(1/p):0};
 }
 
-function art(seed,locks,word){
+function art(seed,locks,word,dens){
+ dens=(dens==null)?0.5:dens;
+ const AP=PALS.concat(customPals);
  const R=mulberry32(seed);
  const pick=a=>a[Math.floor(R()*a.length)];
  const ri=(a,b)=>a+Math.floor(R()*(b-a+1));
@@ -172,7 +213,7 @@ function art(seed,locks,word){
  if(locks.layout!=null)layout=locks.layout;
  if(locks.instr!=null)instr=locks.instr;
  if(locks.name!=null)name=locks.name;
- const P=PALS[palIdx],ink=P.ink,acc=P.acc;
+ const P=AP[palIdx]||PALS[0],ink=P.ink,acc=P.acc;
  const T=(x,y,str,fs,anch,fill,ls)=>`<text x="${x}" y="${y}" font-family="${MONO}" font-size="${fs}" text-anchor="${anch||'start'}" fill="${fill||ink}" letter-spacing="${ls==null?1.5:ls}">${str}</text>`;
  const L=(x1,y1,x2,y2,w,st,dash)=>`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${st||ink}" stroke-width="${w||1}"${dash?` stroke-dasharray="${dash}"`:''}/>`;
  const C=(cx,cy,r,w,st,dash,fill)=>`<circle cx="${cx}" cy="${cy}" r="${r}" fill="${fill||'none'}"${w?` stroke="${st||ink}" stroke-width="${w}"`:''}${dash?` stroke-dasharray="${dash}"`:''}/>`;
@@ -186,12 +227,12 @@ function art(seed,locks,word){
    const[ax,ay]=px(cx,cy,r*0.7,R()*360);s+=C(ax,ay,r*0.045+1,0,null,null,acc);
    s+=C(cx,cy,r*0.04+1,0,null,null,ink);
   }else if(idx===1){
-   const n=pick([24,36,48]);
+   const n=[16,24,36,48][Math.min(3,Math.floor(dens*4))];
    for(let i=0;i<n;i++){const a=i*360/n,r1=i%2?r*0.55:r*0.4;const[x1,y1]=px(cx,cy,r1,a),[x2,y2]=px(cx,cy,r,a);s+=L(x1,y1,x2,y2,1.25);}
    s+=C(cx,cy,r*0.28,1.25)+C(cx,cy,r*0.05+1,0,null,null,acc);
   }else if(idx===2){
    s+=C(cx,cy,r,1.5);
-   for(let i=0;i<60;i++){const a=i*6,len=i%5?r*0.05:r*0.11;const[x1,y1]=px(cx,cy,r-len-2,a),[x2,y2]=px(cx,cy,r-2,a);s+=L(x1,y1,x2,y2,i%5?0.75:1.25);}
+   const tk=Math.round(36+dens*48);for(let i=0;i<tk;i++){const a=i*360/tk,len=i%5?r*0.05:r*0.11;const[x1,y1]=px(cx,cy,r-len-2,a),[x2,y2]=px(cx,cy,r-2,a);s+=L(x1,y1,x2,y2,i%5?0.75:1.25);}
    const na=R()*360;const[nx,ny]=px(cx,cy,r-r*0.2,na);
    s+=L(cx,cy,nx,ny,2.5,acc);
    s+=C(cx,cy,r*0.06+1,0,null,null,ink)+C(cx,cy,r*0.025+1,0,null,null,P.bg);
@@ -240,9 +281,9 @@ function art(seed,locks,word){
     s+=C(x0+8+step*ri(1,n-1),cy+lvl*0,3.5,0,null,null,acc);
    }
   }else if(idx===7){
-   let ox=cx,oy=cy;
-   for(let i=0;i<5;i++){
-    s+=C(ox,oy,r*(1-i*0.17),i===0?1.5:1.25);
+   let ox=cx,oy=cy;const rings=Math.round(3+dens*4);
+   for(let i=0;i<rings;i++){
+    s+=C(ox,oy,r*(1-i*(0.82/(rings-1))),i===0?1.5:1.25);
     ox+=ri(-5,5);oy+=ri(-5,5);
    }
    s+=C(ox,oy,r*0.05+1.5,0,null,null,acc);
@@ -271,10 +312,10 @@ function art(seed,locks,word){
    s+=L(cx-r,cy,cx+r,cy,0.5,ink,'2 4')+L(cx,cy-r,cx,cy+r,0.5,ink,'2 4');
    const a1=R()*360;const[w1x,w1y]=px(cx,cy,r,a1),[w2x,w2y]=px(cx,cy,r,a1+38);
    s+=`<path d="M ${cx} ${cy} L ${w1x.toFixed(1)} ${w1y.toFixed(1)} A ${r} ${r} 0 0 1 ${w2x.toFixed(1)} ${w2y.toFixed(1)} Z" fill="${acc}"/>`;
-   for(let b=0;b<2;b++){const[bx,by]=px(cx,cy,r*(0.3+R()*0.55),R()*360);s+=C(bx,by,3,0,null,null,ink);}
+   const bodies=Math.round(1+dens*3);for(let b=0;b<bodies;b++){const[bx,by]=px(cx,cy,r*(0.3+R()*0.55),R()*360);s+=C(bx,by,3,0,null,null,ink);}
    s+=C(cx,cy,3.5,0,null,null,ink);
   }else{
-   const n=5,step=2*r*0.92/(n-1),x0=cx-r*0.92,y0=cy-r*0.92,z=Math.min(7,step*0.22);
+   const n=[3,4,5,6][Math.min(3,Math.floor(dens*4))],step=2*r*0.92/(n-1),x0=cx-r*0.92,y0=cy-r*0.92,z=Math.min(7,step*0.22);
    const hi=ri(0,n*n-1);
    for(let i=0;i<n*n;i++){
     const gx=x0+(i%n)*step,gy=y0+Math.floor(i/n)*step;
@@ -331,7 +372,7 @@ function art(seed,locks,word){
   for(let i=3;i>0;i--){const j=ri(0,i);[order[i],order[j]]=[order[j],order[i]];}
   const types=['bar','dots','g','g'];
   for(let i=3;i>0;i--){const j=ri(0,i);[types[i],types[j]]=[types[j],types[i]];}
-  const nDeco=ri(2,4);
+  const nDeco=Math.max(1,Math.min(4,Math.round(1+dens*3)));
   for(let d=0;d<nDeco;d++)s+=decoAt(slots[order[d]][0],slots[order[d]][1],types[d]);
  }else if(layout===1){
   s+=L(340,66,340,460,1);
@@ -420,16 +461,25 @@ function makeZip(files){
 
 const $=id=>document.getElementById(id);
 const stage=$('stage'),hist=$('hist'),grid=$('batchGrid');
-let cur=null,locks={},histArr=[],batch=[];
+let cur=null,locks={},histArr=[],batch=[],dens=0.5;
+const CPKEY='kojima_palettes';
+function loadCP(){try{return JSON.parse(localStorage.getItem(CPKEY))||[]}catch(e){return[]}}
+function saveCP(){try{localStorage.setItem(CPKEY,JSON.stringify(customPals))}catch(e){}}
+let customPals=loadCP();
+function allPals(){return PALS.concat(customPals);}
 
 function stateToHash(seed,lk,word){
  const p=new URLSearchParams();
  p.set('s',seed);
- if(lk.pal!=null)p.set('lp',lk.pal);
+ if(lk.pal!=null){
+  if(lk.pal<PALS.length)p.set('lp',lk.pal);
+  else{const cp=customPals[lk.pal-PALS.length];if(cp)p.set('cp',[cp.bg.replace('#',''),cp.ink.replace('#',''),cp.acc.replace('#',''),encodeURIComponent(cp.n)].join('~'));}
+ }
  if(lk.layout!=null)p.set('ll',lk.layout);
  if(lk.instr!=null)p.set('li',lk.instr);
  if(lk.name!=null)p.set('ln',NAMES.indexOf(lk.name));
  if(word&&word.trim())p.set('w',word.trim());
+ if(dens!==0.5)p.set('d',Math.round(dens*100));
  return p.toString();
 }
 function hashToState(){
@@ -441,20 +491,27 @@ function hashToState(){
  if(isNaN(seed))return null;
  const lk={};
  if(p.has('lp'))lk.pal=+p.get('lp');
+ else if(p.has('cp')){
+  const parts=p.get('cp').split('~');
+  const bg='#'+parts[0],ink='#'+parts[1],acc='#'+parts[2],nm=parts[3]?decodeURIComponent(parts[3]):'SHARED';
+  let idx=customPals.findIndex(x=>x.bg===bg&&x.ink===ink&&x.acc===acc);
+  if(idx<0){customPals.push({bg,ink,acc,n:nm});saveCP();idx=customPals.length-1;if(typeof renderCP==='function')renderCP();}
+  lk.pal=PALS.length+idx;
+ }
  if(p.has('ll'))lk.layout=+p.get('ll');
  if(p.has('li'))lk.instr=+p.get('li');
  if(p.has('ln')){const ni=+p.get('ln');if(NAMES[ni])lk.name=NAMES[ni];}
- return{seed,locks:lk,word:p.get('w')||''};
+ return{seed,locks:lk,word:p.get('w')||'',dens:p.has('d')?(+p.get('d')/100):0.5};
 }
 
 function render(seed){
- cur=art(seed,locks,$('word').value);
+ cur=art(seed,locks,$('word').value,dens);
  cur.seed=seed;
  stage.innerHTML=cur.svg;
  $('seed').value=seed;
  for(const el of document.querySelectorAll('.val')){
   const t=el.dataset.t,v=cur.traits;
-  el.textContent=t==='pal'?PALS[v.pal].n:t==='layout'?LAYOUTS[v.layout]:t==='instr'?INSTR[v.instr]:v.name;
+  el.textContent=t==='pal'?(allPals()[v.pal]||PALS[0]).n:t==='layout'?LAYOUTS[v.layout]:t==='instr'?INSTR[v.instr]:v.name;
  }
  const rr=rarity(cur.traits);
  let badge='';
@@ -462,13 +519,14 @@ function render(seed){
  $('status').innerHTML='<span class="slabel">'+esc(cur.label)+'</span><span class="sseed">SEED '+seed+'</span>'+badge;
  window.history.replaceState(null,'','#'+stateToHash(seed,locks,$('word').value));
 }
-function loadState(seed,lk,word){
- locks={...lk};$('word').value=word||'';syncLockUI();render(seed);
+function setDens(v){dens=v;$('complexity').value=Math.round(v*100);$('cxout').textContent=Math.round(v*100);}
+function loadState(seed,lk,word,dv){
+ locks={...lk};$('word').value=word||'';setDens(dv==null?0.5:dv);syncLockUI();render(seed);
  window.scrollTo({top:0,behavior:'smooth'});
 }
 function lucky(){
  if(cur){
-  histArr.unshift({seed:cur.seed,locks:{...locks},word:$('word').value});
+  histArr.unshift({seed:cur.seed,locks:{...locks},word:$('word').value,dens});
   histArr=histArr.slice(0,10);
   renderHist();
  }
@@ -478,13 +536,13 @@ function renderHist(){
  hist.innerHTML='';
  $('histEmpty').style.display=histArr.length?'none':'block';
  for(const h of histArr){
-  const g=art(h.seed,h.locks,h.word),rr=rarity(g.traits);
+  const g=art(h.seed,h.locks,h.word,h.dens),rr=rarity(g.traits);
   const tile=document.createElement('div');
   tile.className='rtile'+(rr.tier!=='COMMON'?' tile-rare':'');
   tile.title='SEED '+h.seed+(rr.tier!=='COMMON'?' · '+rr.tier:'');
   tile.setAttribute('aria-label','Restore seed '+h.seed);
   tile.innerHTML=g.svg;
-  tile.onclick=()=>loadState(h.seed,h.locks,h.word);
+  tile.onclick=()=>loadState(h.seed,h.locks,h.word,h.dens);
   hist.appendChild(tile);
  }
 }
@@ -503,7 +561,7 @@ for(const b of document.querySelectorAll('[data-l]')){
 for(const el of document.querySelectorAll('.val')){
  el.onclick=()=>{
   const k=el.dataset.t;
-  const max=k==='pal'?PALS.length:k==='layout'?LAYOUTS.length:k==='instr'?INSTR.length:NAMES.length;
+  const max=k==='pal'?allPals().length:k==='layout'?LAYOUTS.length:k==='instr'?INSTR.length:NAMES.length;
   const curVal=k==='name'?NAMES.indexOf(cur.traits.name):cur.traits[k];
   const next=(curVal+1)%max;
   locks[k]=k==='name'?NAMES[next]:next;
@@ -530,7 +588,7 @@ function mint(){
  if(coll.some(x=>x.sig===s)){flash('mint','◆ ALREADY MINTED');return;}
  let n=parseInt(localStorage.getItem(MKEY)||'0',10)+1;
  try{localStorage.setItem(MKEY,n)}catch(e){}
- coll.unshift({sig:s,seed:cur.seed,locks:{...locks},word:$('word').value,label:cur.label,traits:cur.traits,edition:n});
+ coll.unshift({sig:s,seed:cur.seed,locks:{...locks},word:$('word').value,label:cur.label,traits:cur.traits,edition:n,dens});
  saveColl();renderColl();
  flash('mint','◆ MINTED #'+String(n).padStart(3,'0'));
 }
@@ -545,8 +603,8 @@ function renderColl(){
   const tile=document.createElement('div');
   tile.className='rtile'+(rr.tier!=='COMMON'?' tile-rare':'');
   tile.title=ed+' '+item.label+(rr.tier!=='COMMON'?' · '+rr.tier+' 1 of ~'+rr.odds:'');
-  tile.innerHTML=art(item.seed,item.locks,item.word).svg+'<span class="ed">'+ed+'</span>';
-  tile.onclick=()=>loadState(item.seed,item.locks,item.word);
+  tile.innerHTML=art(item.seed,item.locks,item.word,item.dens).svg+'<span class="ed">'+ed+'</span>';
+  tile.onclick=()=>loadState(item.seed,item.locks,item.word,item.dens);
   const del=document.createElement('button');del.className='del';del.textContent='×';
   del.setAttribute('aria-label','Remove edition '+item.edition);
   del.onclick=e=>{e.stopPropagation();coll=coll.filter(x=>x!==item);saveColl();renderColl();};
@@ -567,7 +625,7 @@ document.addEventListener('keydown',e=>{
  if(k==='l')lucky();
  else if(k==='m')mint();
 });
-window.addEventListener('hashchange',()=>{const st=hashToState();if(st)loadState(st.seed,st.locks,st.word);});
+window.addEventListener('hashchange',()=>{const st=hashToState();if(st)loadState(st.seed,st.locks,st.word,st.dens);});
 
 function dl(url,fn){const a=document.createElement('a');a.href=url;a.download=fn;a.click();}
 function slug(t){return t.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')||'untitled';}
@@ -584,19 +642,19 @@ $('dlpng').onclick=()=>{
 };
 $('rollBatch').onclick=()=>{
  const n=parseInt($('batchN').value,10);
- const snapLocks={...locks},snapWord=$('word').value;
+ const snapLocks={...locks},snapWord=$('word').value,snapDens=dens;
  batch=[];grid.innerHTML='';$('batchWrap').style.display='block';
  for(let i=0;i<n;i++){
   const seed=Math.floor(Math.random()*1e9);
-  const g=art(seed,snapLocks,snapWord);
-  g.seed=seed;g._locks=snapLocks;g._word=snapWord;
+  const g=art(seed,snapLocks,snapWord,snapDens);
+  g.seed=seed;
   batch.push(g);
   const b=document.createElement('button');
   b.setAttribute('aria-label','Load seed '+seed);
   b.innerHTML=g.svg;
   const rr=rarity(g.traits);
   if(rr.tier!=='COMMON'){b.classList.add('tile-rare');b.title=rr.tier+' · 1 of ~'+rr.odds;}
-  b.onclick=()=>loadState(seed,snapLocks,snapWord);
+  b.onclick=()=>loadState(seed,snapLocks,snapWord,snapDens);
   grid.appendChild(b);
  }
  $('dlzip').disabled=false;$('dlzip').style.opacity=1;
@@ -607,9 +665,50 @@ $('dlzip').onclick=()=>{
  dl(URL.createObjectURL(makeZip(files)),'kojima-batch-'+batch.length+'.zip');
 };
 
+for(const b of document.querySelectorAll('[data-r]')){
+ b.onclick=()=>{
+  const k=b.dataset.r;
+  const max=k==='pal'?allPals().length:k==='layout'?LAYOUTS.length:k==='instr'?INSTR.length:NAMES.length;
+  const curVal=k==='name'?NAMES.indexOf(cur.traits.name):cur.traits[k];
+  let nv=curVal;
+  if(max>1)while(nv===curVal)nv=Math.floor(Math.random()*max);
+  locks[k]=k==='name'?NAMES[nv]:nv;
+  syncLockUI();render(cur.seed);
+ };
+}
+$('complexity').addEventListener('input',e=>{dens=(+e.target.value)/100;$('cxout').textContent=e.target.value;if(cur)render(cur.seed);});
+
+function renderCP(){
+ const l=$('cpList');l.innerHTML='';
+ customPals.forEach((p,i)=>{
+  const row=document.createElement('div');row.className='cpal';
+  row.innerHTML='<span class="sw" style="background:'+p.bg+'"></span><span class="sw" style="background:'+p.ink+'"></span><span class="sw" style="background:'+p.acc+'"></span><span class="nm">'+esc(p.n)+'</span>';
+  row.querySelector('.nm').onclick=()=>{locks.pal=PALS.length+i;syncLockUI();render(cur.seed);};
+  const x=document.createElement('button');x.className='x';x.textContent='×';x.setAttribute('aria-label','Delete palette '+p.n);
+  x.onclick=()=>{
+   customPals.splice(i,1);saveCP();
+   if(locks.pal!=null&&locks.pal>=PALS.length){
+    if(locks.pal===PALS.length+i)delete locks.pal;
+    else if(locks.pal>PALS.length+i)locks.pal--;
+   }
+   syncLockUI();renderCP();render(cur.seed);
+  };
+  row.appendChild(x);l.appendChild(row);
+ });
+}
+$('cpAdd').onclick=()=>{
+ const bg=$('cpBg').value,ink=$('cpInk').value,acc=$('cpAcc').value;
+ const nm=(($('cpName').value||'').trim().toUpperCase().replace(/~/g,'-'))||('CUSTOM '+(customPals.length+1));
+ customPals.push({bg,ink,acc,n:nm});saveCP();
+ $('cpName').value='';
+ locks.pal=PALS.length+customPals.length-1;
+ renderCP();syncLockUI();render(cur.seed);
+};
+
+renderCP();
 renderColl();
 const initial=hashToState();
-if(initial){locks={...initial.locks};$('word').value=initial.word;syncLockUI();render(initial.seed);}
+if(initial)loadState(initial.seed,initial.locks,initial.word,initial.dens);
 else render(Math.floor(Math.random()*1e9));
 </script>
 </body>
