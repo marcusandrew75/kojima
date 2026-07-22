@@ -79,7 +79,7 @@ footer{margin-top:32px;border-top:1px solid var(--line);padding-top:12px;color:v
 </style>
 </head>
 <body>
-<header><h1>KOJIMA — MICRO-GRAPHIC GENERATOR</h1><span>V0.5 / AFTER K.A.M.</span></header>
+<header><h1>KOJIMA — MICRO-GRAPHIC GENERATOR</h1><span>V0.6 / AFTER K.A.M.</span></header>
 <div class="wrap">
   <div class="rail">
     <div class="railsec">
@@ -115,6 +115,12 @@ footer{margin-top:32px;border-top:1px solid var(--line);padding-top:12px;color:v
         <span id="cxout">50</span>
       </div>
       <div class="hint">SCALES TICK DENSITY, DECORATION + DETAIL ACROSS THE WHOLE PIECE.</div>
+    </div>
+    <div class="sec">
+      <h2>FINISH</h2>
+      <div class="trait"><label>WORDMARK</label><select id="wfont" class="grow" style="flex:1"><option>MONO</option><option>CONDENSED</option><option>GROTESK</option></select></div>
+      <div class="trait" style="margin-bottom:0"><label>RISO PRINT</label><button id="risoBtn" class="ghost" style="flex:1;padding:7px 10px">OFF</button></div>
+      <div class="hint">RISO ADDS INK GRAIN + A MISREGISTERED ACCENT PLATE.</div>
     </div>
     <div class="sec">
       <h2>PALETTE EDITOR</h2>
@@ -195,6 +201,9 @@ const NAMES=['ORBIT','SIGNAL','RELAY','SECTOR','FLUX','MODULE','VECTOR','PHASE',
 const INSTR=['TARGET','BURST','DIAL','ORBIT','ARC-GRID','ECLIPSE','WAVE','CONTOUR','BARS','GLOBE','RADAR','FIELD'];
 const LAYOUTS=['CENTERED','SPLIT','OFFSET','DUO'];
 const AFFIN=[3,6,10,4,7,8,11,2,9,10,5,1,10,11,8,0];
+const FONTS=[{n:'MONO',f:MONO,ls:4},{n:'CONDENSED',f:"'Arial Narrow','Helvetica Neue',Arial,sans-serif",ls:1.5},{n:'GROTESK',f:"'Helvetica Neue',Helvetica,Arial,sans-serif",ls:0.5}];
+function recolorAccent(str,acc){return str.replace(/(fill|stroke)="(?!none")[^"]*"/g,'$1="'+acc+'"');}
+function grainOverlay(w,h,ink,id){return `<defs><filter id="${id}" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" stitchTiles="stitch" result="n"/><feColorMatrix in="n" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.33 0.33 0.33 0 0" result="a"/><feFlood flood-color="${ink}" result="f"/><feComposite in="f" in2="a" operator="in"/></filter></defs><rect x="0" y="0" width="${w}" height="${h}" filter="url(#${id})" opacity="0.12"/>`;}
 function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
 function esc(t){return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
 
@@ -209,8 +218,10 @@ function rarity(tr){
  return{tier,flags,odds:flags.length?Math.round(1/p):0};
 }
 
-function art(seed,locks,word,dens){
+function art(seed,locks,word,dens,opts){
  dens=(dens==null)?0.5:dens;
+ opts=opts||{};
+ const FONT=opts.font||MONO,FLS=opts.fls!=null?opts.fls:4,RISO=!!opts.riso;
  const AP=PALS.concat(customPals);
  const R=mulberry32(seed);
  const pick=a=>a[Math.floor(R()*a.length)];
@@ -439,37 +450,47 @@ function art(seed,locks,word,dens){
  const wm=(word&&word.trim())?esc(word.trim().toUpperCase()):name+'—'+String(num).padStart(2,'0');
  let chromeBottom='';
  chromeBottom+=L(52,fy,W-52,fy,1);
- chromeBottom+=T(52,fy+34,wm,25,'start',ink,4);
+ chromeBottom+=`<text x="52" y="${fy+34}" font-family="${FONT}" font-size="26" fill="${ink}" letter-spacing="${FLS}">${wm}</text>`;
  chromeBottom+=T(52,fy+56,'SYS.'+ri(1,9)+' / '+LAYOUTS[layout]+' / '+INSTR[instr]+' / '+P.n,9,'start',ink,1.2);
  chromeBottom+=`<rect x="${W-66}" y="${fy+16}" width="14" height="14" fill="${acc}"/>`;
  chromeBottom+=T(W-80,fy+27,String(ri(1,99)).padStart(2,'0')+'/100',10,'end',ink,1);
- const s=bgRect+chromeTop+draw+chromeBottom;
+ const fg=chromeTop+draw+chromeBottom;
+ let s;
+ if(RISO){
+  const ghost=`<g transform="translate(3,3.5)" opacity="0.9">`+recolorAccent(fg,acc)+`</g>`;
+  s=bgRect+ghost+fg+grainOverlay(W,H,ink,'gr'+seed);
+ }else s=bgRect+fg;
  return{
   svg:`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" shape-rendering="geometricPrecision">${s}</svg>`,
-  inner:s,art:bgRect+draw,hero:{x:hx,y:hy,r:hr},
+  inner:s,art:bgRect+draw,draw:draw,hero:{x:hx,y:hy,r:hr},
   bg:P.bg,ink:P.ink,acc:P.acc,palName:P.n,
   traits:{pal:palIdx,layout,instr,name},
   label:(word&&word.trim())?word.trim().toUpperCase():name+'-'+num
  };
 }
 function svgWrap(w,h,inner){return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w} ${h}" shape-rendering="geometricPrecision">${inner}</svg>`;}
-function ctext(x,y,str,ink,fs,anch,ls){return `<text x="${x}" y="${y}" font-family="${MONO}" font-size="${fs}" text-anchor="${anch||'start'}" fill="${ink}" letter-spacing="${ls==null?1.5:ls}">${str}</text>`;}
+function ctext(x,y,str,ink,fs,anch,ls,font){return `<text x="${x}" y="${y}" font-family="${font||MONO}" font-size="${fs}" text-anchor="${anch||'start'}" fill="${ink}" letter-spacing="${ls==null?1.5:ls}">${str}</text>`;}
 function cmarks(w,h,ink,inset){const d=6;let s='';for(const[x,y]of[[inset,inset],[w-inset,inset],[inset,h-inset],[w-inset,h-inset]])s+=`<line x1="${x-d}" y1="${y}" x2="${x+d}" y2="${y}" stroke="${ink}" stroke-width="1"/><line x1="${x}" y1="${y-d}" x2="${x}" y2="${y+d}" stroke="${ink}" stroke-width="1"/>`;return s;}
 function place(x,y,w,h,inner){return `<svg x="${x}" y="${y}" width="${w}" height="${h}" viewBox="0 0 560 560">${inner}</svg>`;}
-function compose(fmt,b){
- const bg=b.bg,ink=b.ink;
+function compose(fmt,b,opts){
+ opts=opts||{};
+ const WF=opts.font||MONO,RISO=!!opts.riso;
+ const bg=b.bg,ink=b.ink,acc=b.acc;
  const art=b.art||b.inner;
+ const ghost=(x,y,w,h,vb)=>RISO&&b.draw?`<svg x="${x+3}" y="${y+3.5}" width="${w}" height="${h}"${vb?` viewBox="${vb}"`:' viewBox="0 0 560 560"'} opacity="0.9">${recolorAccent(b.draw,acc)}</svg>`:'';
  function barcodeR(x2,y,h2,bars,ink2){let seg=[],tot=0;for(let k=0;k<bars;k++){const v=[1.5,2.5,4][k%3];seg.push(v);tot+=v+3;}let sx=x2-tot,out='';for(const v of seg){out+=`<rect x="${sx.toFixed(1)}" y="${y}" width="${v}" height="${h2}" fill="${ink2}"/>`;sx+=v+3;}return out;}
  function barcodeL(x1,y,h2,bars,ink2){let sx=x1,out='';for(let k=0;k<bars;k++){const v=[1.5,2.5,4][k%3];out+=`<rect x="${sx.toFixed(1)}" y="${y}" width="${v}" height="${h2}" fill="${ink2}"/>`;sx+=v+3;}return out;}
  if(fmt==='avatar'){
   const V=560,hero=b.hero||{x:280,y:266,r:120},pad=1.28,side=hero.r*2*pad;
   const vb=`${(hero.x-side/2).toFixed(1)} ${(hero.y-side/2).toFixed(1)} ${side.toFixed(1)} ${side.toFixed(1)}`;
   let s=`<rect width="${V}" height="${V}" fill="${bg}"/>`;
+  s+=ghost(0,0,V,V,vb);
   s+=`<svg x="0" y="0" width="${V}" height="${V}" viewBox="${vb}">${art}</svg>`;
   s+=`<rect x="12.5" y="12.5" width="${V-25}" height="${V-25}" fill="none" stroke="${ink}" stroke-width="1.25"/>`;
   s+=cmarks(V,V,ink,28);
   s+=`<rect x="${V/2-90}" y="${V-46}" width="180" height="26" fill="${bg}"/>`;
   s+=ctext(V/2,V-27,'◆ '+esc(b.label),ink,11,'middle',2);
+  if(RISO)s+=grainOverlay(V,V,ink,'grav'+(b.seed||0));
   return{svg:svgWrap(V,V,s),w:V,h:V,suffix:'avatar'};
  }
  if(fmt==='poster'){
@@ -481,14 +502,16 @@ function compose(fmt,b){
   s+=ctext(w-mx,92,'N°'+String((b.seed||0)%10000).padStart(4,'0'),ink,12,'end',1);
   s+=`<line x1="${mx}" y1="106" x2="${w-mx}" y2="106" stroke="${ink}" stroke-width="0.75"/>`;
   s+=`<rect x="${mx}" y="${cyTop}" width="${cw}" height="${ch}" fill="none" stroke="${ink}" stroke-width="0.75"/>`;
+  s+=ghost(mx,cyTop,cw,ch);
   s+=place(mx,cyTop,cw,ch,art);
   const py=cyTop+ch+46;
   s+=`<line x1="${mx}" y1="${py}" x2="${w-mx}" y2="${py}" stroke="${ink}" stroke-width="0.75"/>`;
-  s+=ctext(mx,py+38,esc(b.label),ink,30,'start',3);
+  s+=ctext(mx,py+38,esc(b.label),ink,30,'start',3,WF);
   s+=ctext(mx,py+62,LAYOUTS[b.traits.layout]+' / '+INSTR[b.traits.instr]+' / '+b.palName,ink,10,'start',1.5);
   s+=barcodeR(w-mx,py+22,34,20,ink);
   s+=ctext(w-mx,py+62,'PLATE / 100',ink,10,'end',1);
   s+=ctext(w/2,h-fi-22,'KOJIMA — AFTER K.A.M.',ink,9,'middle',2);
+  if(RISO)s+=grainOverlay(w,h,ink,'grpo'+(b.seed||0));
   return{svg:svgWrap(w,h,s),w,h,suffix:'poster'};
  }
  if(fmt==='wide'){
@@ -496,15 +519,17 @@ function compose(fmt,b){
   let s=`<rect width="${w}" height="${h}" fill="${bg}"/>`;
   s+=cmarks(w,h,ink,30);
   s+=`<rect x="${m}" y="${m}" width="${cw}" height="${ch}" fill="none" stroke="${ink}" stroke-width="0.75"/>`;
+  s+=ghost(m,m,cw,ch);
   s+=place(m,m,cw,ch,art);
   const px=m+cw+54,tx=px+42,rgt=w-m;
   s+=`<line x1="${px}" y1="${m}" x2="${px}" y2="${h-m}" stroke="${ink}" stroke-width="1"/>`;
   s+=ctext(tx,m+66,'KOJIMA — MICRO-GRAPHIC',ink,12,'start',3);
-  s+=ctext(tx,m+118,esc(b.label),ink,42,'start',3);
+  s+=ctext(tx,m+118,esc(b.label),ink,42,'start',3,WF);
   s+=`<line x1="${tx}" y1="${m+140}" x2="${rgt}" y2="${m+140}" stroke="${ink}" stroke-width="0.5"/>`;
   ['SYSTEM / '+INSTR[b.traits.instr],'LAYOUT / '+LAYOUTS[b.traits.layout],'PALETTE / '+b.palName,'SEED / '+(b.seed||0)].forEach((t,i)=>{s+=ctext(tx,m+178+i*28,t,ink,13,'start',1.5);});
   s+=barcodeL(tx,h-m-48,28,32,ink);
   s+=ctext(rgt,h-m-6,'AFTER K.A.M.',ink,10,'end',2);
+  if(RISO)s+=grainOverlay(w,h,ink,'grwi'+(b.seed||0));
   return{svg:svgWrap(w,h,s),w,h,suffix:'wide'};
  }
  return{svg:b.svg,w:560,h:560,suffix:'square'};
@@ -555,7 +580,8 @@ function makeZip(files){
 
 const $=id=>document.getElementById(id);
 const stage=$('stage'),hist=$('hist'),grid=$('batchGrid');
-let cur=null,locks={},histArr=[],batch=[],dens=0.5,fmt='square';
+let cur=null,locks={},histArr=[],batch=[],dens=0.5,fmt='square',wfi=0,riso=false;
+function curOpts(){return{font:FONTS[wfi].f,fls:FONTS[wfi].ls,riso};}
 const CPKEY='kojima_palettes';
 function loadCP(){try{return JSON.parse(localStorage.getItem(CPKEY))||[]}catch(e){return[]}}
 function saveCP(){try{localStorage.setItem(CPKEY,JSON.stringify(customPals))}catch(e){}}
@@ -574,6 +600,8 @@ function stateToHash(seed,lk,word){
  if(lk.name!=null)p.set('ln',NAMES.indexOf(lk.name));
  if(word&&word.trim())p.set('w',word.trim());
  if(dens!==0.5)p.set('d',Math.round(dens*100));
+ if(wfi)p.set('ft',wfi);
+ if(riso)p.set('ri','1');
  return p.toString();
 }
 function hashToState(){
@@ -595,13 +623,13 @@ function hashToState(){
  if(p.has('ll'))lk.layout=+p.get('ll');
  if(p.has('li'))lk.instr=+p.get('li');
  if(p.has('ln')){const ni=+p.get('ln');if(NAMES[ni])lk.name=NAMES[ni];}
- return{seed,locks:lk,word:p.get('w')||'',dens:p.has('d')?(+p.get('d')/100):0.5};
+ return{seed,locks:lk,word:p.get('w')||'',dens:p.has('d')?(+p.get('d')/100):0.5,wfi:p.has('ft')?+p.get('ft'):0,riso:p.get('ri')==='1'};
 }
 
 function render(seed){
- cur=art(seed,locks,$('word').value,dens);
+ cur=art(seed,locks,$('word').value,dens,curOpts());
  cur.seed=seed;
- stage.innerHTML=compose(fmt,cur).svg;
+ stage.innerHTML=compose(fmt,cur,curOpts()).svg;
  $('seed').value=seed;
  for(const el of document.querySelectorAll('.val')){
   const t=el.dataset.t,v=cur.traits;
@@ -614,13 +642,15 @@ function render(seed){
  window.history.replaceState(null,'','#'+stateToHash(seed,locks,$('word').value));
 }
 function setDens(v){dens=v;$('complexity').value=Math.round(v*100);$('cxout').textContent=Math.round(v*100);}
-function loadState(seed,lk,word,dv){
- locks={...lk};$('word').value=word||'';setDens(dv==null?0.5:dv);syncLockUI();render(seed);
+function setFinish(wf,rs){wfi=(wf!=null&&FONTS[wf])?wf:0;riso=!!rs;$('wfont').value=FONTS[wfi].n;$('risoBtn').textContent=riso?'ON':'OFF';$('risoBtn').classList.toggle('on',riso);}
+function loadState(seed,lk,word,dv,st){
+ st=st||{};
+ locks={...lk};$('word').value=word||'';setDens(dv==null?0.5:dv);setFinish(st.wfi,st.riso);syncLockUI();render(seed);
  window.scrollTo({top:0,behavior:'smooth'});
 }
 function lucky(){
  if(cur){
-  histArr.unshift({seed:cur.seed,locks:{...locks},word:$('word').value,dens});
+  histArr.unshift({seed:cur.seed,locks:{...locks},word:$('word').value,dens,wfi,riso});
   histArr=histArr.slice(0,10);
   renderHist();
  }
@@ -630,13 +660,13 @@ function renderHist(){
  hist.innerHTML='';
  $('histEmpty').style.display=histArr.length?'none':'block';
  for(const h of histArr){
-  const g=art(h.seed,h.locks,h.word,h.dens),rr=rarity(g.traits);
+  const g=art(h.seed,h.locks,h.word,h.dens,{font:FONTS[h.wfi||0].f,fls:FONTS[h.wfi||0].ls,riso:h.riso}),rr=rarity(g.traits);
   const tile=document.createElement('div');
   tile.className='rtile'+(rr.tier!=='COMMON'?' tile-rare':'');
   tile.title='SEED '+h.seed+(rr.tier!=='COMMON'?' · '+rr.tier:'');
   tile.setAttribute('aria-label','Restore seed '+h.seed);
   tile.innerHTML=g.svg;
-  tile.onclick=()=>loadState(h.seed,h.locks,h.word,h.dens);
+  tile.onclick=()=>loadState(h.seed,h.locks,h.word,h.dens,{wfi:h.wfi,riso:h.riso});
   hist.appendChild(tile);
  }
 }
@@ -682,7 +712,7 @@ function mint(){
  if(coll.some(x=>x.sig===s)){flash('mint','◆ ALREADY MINTED');return;}
  let n=parseInt(localStorage.getItem(MKEY)||'0',10)+1;
  try{localStorage.setItem(MKEY,n)}catch(e){}
- coll.unshift({sig:s,seed:cur.seed,locks:{...locks},word:$('word').value,label:cur.label,traits:cur.traits,edition:n,dens});
+ coll.unshift({sig:s,seed:cur.seed,locks:{...locks},word:$('word').value,label:cur.label,traits:cur.traits,edition:n,dens,wfi,riso});
  saveColl();renderColl();
  flash('mint','◆ MINTED #'+String(n).padStart(3,'0'));
 }
@@ -697,8 +727,8 @@ function renderColl(){
   const tile=document.createElement('div');
   tile.className='rtile'+(rr.tier!=='COMMON'?' tile-rare':'');
   tile.title=ed+' '+item.label+(rr.tier!=='COMMON'?' · '+rr.tier+' 1 of ~'+rr.odds:'');
-  tile.innerHTML=art(item.seed,item.locks,item.word,item.dens).svg+'<span class="ed">'+ed+'</span>';
-  tile.onclick=()=>loadState(item.seed,item.locks,item.word,item.dens);
+  tile.innerHTML=art(item.seed,item.locks,item.word,item.dens,{font:FONTS[item.wfi||0].f,fls:FONTS[item.wfi||0].ls,riso:item.riso}).svg+'<span class="ed">'+ed+'</span>';
+  tile.onclick=()=>loadState(item.seed,item.locks,item.word,item.dens,{wfi:item.wfi,riso:item.riso});
   const del=document.createElement('button');del.className='del';del.textContent='×';
   del.setAttribute('aria-label','Remove edition '+item.edition);
   del.onclick=e=>{e.stopPropagation();coll=coll.filter(x=>x!==item);saveColl();renderColl();};
@@ -719,7 +749,7 @@ document.addEventListener('keydown',e=>{
  if(k==='l')lucky();
  else if(k==='m')mint();
 });
-window.addEventListener('hashchange',()=>{const st=hashToState();if(st)loadState(st.seed,st.locks,st.word,st.dens);});
+window.addEventListener('hashchange',()=>{const st=hashToState();if(st)loadState(st.seed,st.locks,st.word,st.dens,{wfi:st.wfi,riso:st.riso});});
 
 function dl(url,fn){const a=document.createElement('a');a.href=url;a.download=fn;a.click();}
 function slug(t){return t.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')||'untitled';}
@@ -729,16 +759,16 @@ function rasterize(svg,w,h,scale,fn){
  img.src=URL.createObjectURL(new Blob([svg],{type:'image/svg+xml;charset=utf-8'}));
 }
 $('fmt').onchange=()=>{fmt=$('fmt').value;if(cur)render(cur.seed);};
-$('dlsvg').onclick=()=>{const o=compose(fmt,cur);dl(URL.createObjectURL(new Blob([o.svg],{type:'image/svg+xml'})),'kojima-'+slug(cur.label)+'-'+o.suffix+'-'+cur.seed+'.svg');};
-$('dlpng').onclick=()=>{const o=compose(fmt,cur),k=parseInt($('pngScale').value,10);rasterize(o.svg,o.w,o.h,k,'kojima-'+slug(cur.label)+'-'+o.suffix+'-'+cur.seed+'.png');};
-$('copysvg').onclick=async()=>{const o=compose(fmt,cur);try{await navigator.clipboard.writeText(o.svg);flash('copysvg','COPIED ✓');}catch(e){window.prompt('Copy SVG:',o.svg);}};
+$('dlsvg').onclick=()=>{const o=compose(fmt,cur,curOpts());dl(URL.createObjectURL(new Blob([o.svg],{type:'image/svg+xml'})),'kojima-'+slug(cur.label)+'-'+o.suffix+'-'+cur.seed+'.svg');};
+$('dlpng').onclick=()=>{const o=compose(fmt,cur,curOpts()),k=parseInt($('pngScale').value,10);rasterize(o.svg,o.w,o.h,k,'kojima-'+slug(cur.label)+'-'+o.suffix+'-'+cur.seed+'.png');};
+$('copysvg').onclick=async()=>{const o=compose(fmt,cur,curOpts());try{await navigator.clipboard.writeText(o.svg);flash('copysvg','COPIED ✓');}catch(e){window.prompt('Copy SVG:',o.svg);}};
 $('rollBatch').onclick=()=>{
  const n=parseInt($('batchN').value,10);
- const snapLocks={...locks},snapWord=$('word').value,snapDens=dens;
+ const snapLocks={...locks},snapWord=$('word').value,snapDens=dens,snapOpts=curOpts(),snapWfi=wfi,snapRiso=riso;
  batch=[];grid.innerHTML='';$('batchWrap').style.display='block';
  for(let i=0;i<n;i++){
   const seed=Math.floor(Math.random()*1e9);
-  const g=art(seed,snapLocks,snapWord,snapDens);
+  const g=art(seed,snapLocks,snapWord,snapDens,snapOpts);
   g.seed=seed;
   batch.push(g);
   const b=document.createElement('button');
@@ -746,7 +776,7 @@ $('rollBatch').onclick=()=>{
   b.innerHTML=g.svg;
   const rr=rarity(g.traits);
   if(rr.tier!=='COMMON'){b.classList.add('tile-rare');b.title=rr.tier+' · 1 of ~'+rr.odds;}
-  b.onclick=()=>loadState(seed,snapLocks,snapWord,snapDens);
+  b.onclick=()=>loadState(seed,snapLocks,snapWord,snapDens,{wfi:snapWfi,riso:snapRiso});
   grid.appendChild(b);
  }
  $('dlzip').disabled=false;$('dlzip').style.opacity=1;
@@ -805,8 +835,10 @@ $('cpAdd').onclick=()=>{
 
 renderCP();
 renderColl();
+$('wfont').onchange=()=>{wfi=Math.max(0,FONTS.findIndex(x=>x.n===$('wfont').value));if(wfi<0)wfi=0;if(cur)render(cur.seed);};
+$('risoBtn').onclick=()=>{riso=!riso;$('risoBtn').textContent=riso?'ON':'OFF';$('risoBtn').classList.toggle('on',riso);if(cur)render(cur.seed);};
 const initial=hashToState();
-if(initial)loadState(initial.seed,initial.locks,initial.word,initial.dens);
+if(initial)loadState(initial.seed,initial.locks,initial.word,initial.dens,{wfi:initial.wfi,riso:initial.riso});
 else render(Math.floor(Math.random()*1e9));
 </script>
 </body>

@@ -29,6 +29,10 @@ Gear Solid, and the technical UI craft of Death Stranding — hence the name.
   and detail across the whole piece.
 - **Palette editor** — define your own bg/ink/accent triple and save named
   palettes to your browser; shareable links carry a custom palette with them.
+- **Wordmark type** — switch the title font between mono, condensed, and
+  grotesk while the micro-labels stay mono for contrast.
+- **Riso finish** — an optional print treatment adding subtle ink grain and a
+  slightly misregistered accent plate; applies to the preview and all exports.
 - **Custom wordmark** — type your own text into the title block.
 - **Deterministic seeds** — every graphic is reproducible from its seed; paste a
   seed to regenerate it exactly.
