@@ -13,6 +13,8 @@ header{display:flex;justify-content:space-between;align-items:baseline;gap:16px;
 h1{font-size:14px;font-weight:400;letter-spacing:.25em}
 header span{color:var(--dim);font-size:11px}
 header a{color:var(--acc);font-size:11px;letter-spacing:.1em;text-decoration:none}
+.jp{letter-spacing:.05em;color:var(--dim)}
+.sec h2 .jp{font-size:9px}
 header a:hover{text-decoration:underline}
 .wrap{display:flex;gap:24px;flex-wrap:wrap;align-items:flex-start;justify-content:center}
 .rail{flex:0 0 196px;display:flex;flex-direction:column;gap:18px;max-height:calc(100vh - 56px);overflow-y:auto;padding-right:4px;position:sticky;top:28px}
@@ -82,7 +84,7 @@ footer{margin-top:32px;border-top:1px solid var(--line);padding-top:12px;color:v
 </style>
 </head>
 <body>
-<header><div class="htitle"><h1>KOJIMA — MICRO-GRAPHIC GENERATOR</h1><a href="https://herokit.app" target="_blank" rel="noopener">FROM THE CREATOR OF HEROKIT ↗</a></div><span>V0.6 / AFTER K.A.M.</span></header>
+<header><div class="htitle"><h1>KOJIMA — MICRO-GRAPHIC GENERATOR</h1><span class="jp" style="font-size:11px">微細図像生成機</span><a href="https://herokit.app" target="_blank" rel="noopener">FROM THE CREATOR OF HEROKIT ↗</a></div><span>V0.6 / AFTER K.A.M.</span></header>
 <div class="wrap">
   <div class="rail">
     <div class="railsec">
@@ -91,7 +93,7 @@ footer{margin-top:32px;border-top:1px solid var(--line);padding-top:12px;color:v
       <div class="railempty" id="collEmpty">EMPTY — MINT A PIECE</div>
     </div>
     <div class="railsec">
-      <div class="railh">RECENT</div>
+      <div class="railh">RECENT <span class="jp">（最近）</span></div>
       <div class="railgrid" id="hist"></div>
       <div class="railempty" id="histEmpty">NO ROLLS YET</div>
     </div>
@@ -101,16 +103,16 @@ footer{margin-top:32px;border-top:1px solid var(--line);padding-top:12px;color:v
     <div id="status"></div>
   </div>
   <div class="panel">
-    <button class="big" id="lucky">◇ Feeling lucky (L)</button>
+    <button class="big" id="lucky">◇ Feeling lucky — 運試し (L)</button>
     <div class="sec">
-      <h2>TRAITS — CLICK VALUE TO CYCLE / ⟳ REROLL / LOCK TO PIN</h2>
+      <h2>TRAITS <span class="jp">（特性）</span> — CLICK VALUE TO CYCLE / ⟳ REROLL / LOCK TO PIN</h2>
       <div class="trait"><label>PALETTE</label><div class="val" data-t="pal"></div><button class="ghost rr" data-r="pal" aria-label="Reroll palette" title="Reroll palette">⟳</button><button class="ghost" data-l="pal">LOCK</button></div>
       <div class="trait"><label>LAYOUT</label><div class="val" data-t="layout"></div><button class="ghost rr" data-r="layout" aria-label="Reroll layout" title="Reroll layout">⟳</button><button class="ghost" data-l="layout">LOCK</button></div>
       <div class="trait"><label>INSTRUMENT</label><div class="val" data-t="instr"></div><button class="ghost rr" data-r="instr" aria-label="Reroll instrument" title="Reroll instrument">⟳</button><button class="ghost" data-l="instr">LOCK</button></div>
       <div class="trait"><label>NAME</label><div class="val" data-t="name"></div><button class="ghost rr" data-r="name" aria-label="Reroll name" title="Reroll name">⟳</button><button class="ghost" data-l="name">LOCK</button></div>
     </div>
     <div class="sec">
-      <h2>COMPLEXITY</h2>
+      <h2>COMPLEXITY <span class="jp">（複雑度）</span></h2>
       <div class="slider">
         <span class="ends">CALM</span>
         <input type="range" id="complexity" min="0" max="100" step="1" value="50">
@@ -120,13 +122,13 @@ footer{margin-top:32px;border-top:1px solid var(--line);padding-top:12px;color:v
       <div class="hint">SCALES TICK DENSITY, DECORATION + DETAIL ACROSS THE WHOLE PIECE.</div>
     </div>
     <div class="sec">
-      <h2>FINISH</h2>
+      <h2>FINISH <span class="jp">（仕上げ）</span></h2>
       <div class="trait"><label>WORDMARK</label><select id="wfont" class="grow" style="flex:1"><option>MONO</option><option>CONDENSED</option><option>GROTESK</option></select></div>
       <div class="trait" style="margin-bottom:0"><label>RISO PRINT</label><button id="risoBtn" class="ghost" style="flex:1;padding:7px 10px">OFF</button></div>
       <div class="hint">RISO ADDS INK GRAIN + A MISREGISTERED ACCENT PLATE.</div>
     </div>
     <div class="sec">
-      <h2>PALETTE EDITOR</h2>
+      <h2>PALETTE EDITOR <span class="jp">（配色編集）</span></h2>
       <div class="swatches">
         <div class="swatch"><label>BG</label><input type="color" id="cpBg" value="#101010"></div>
         <div class="swatch"><label>INK</label><input type="color" id="cpInk" value="#EFEBE0"></div>
@@ -137,26 +139,26 @@ footer{margin-top:32px;border-top:1px solid var(--line);padding-top:12px;color:v
       <div class="hint">SAVED TO THIS BROWSER. CLICK A SAVED PALETTE TO APPLY + LOCK IT.</div>
     </div>
     <div class="sec">
-      <h2>WORDMARK + SEED</h2>
+      <h2>WORDMARK + SEED <span class="jp">（銘板・種）</span></h2>
       <input type="text" id="word" maxlength="16" placeholder="CUSTOM WORDMARK (OPTIONAL)" style="margin-bottom:8px">
       <div class="row"><input type="text" id="seed" class="grow" style="flex:1"><button id="applySeed">APPLY</button></div>
     </div>
     <div class="sec">
-      <h2>COLLECTION <span id="collCount" style="color:var(--dim)">— EMPTY</span></h2>
+      <h2>COLLECTION <span class="jp">（収集）</span> <span id="collCount" style="color:var(--dim)">— EMPTY</span></h2>
       <div class="row">
         <button class="big" id="mint" style="flex:1;border-color:var(--ink);color:var(--ink)">◆ Mint to collection (M)</button>
       </div>
       <div class="hint">MINTED PIECES GET A PERMANENT EDITION NUMBER AND SAVE TO THIS BROWSER.</div>
     </div>
     <div class="sec">
-      <h2>SHARE</h2>
+      <h2>SHARE <span class="jp">（共有）</span></h2>
       <div class="row">
         <button id="copylink" style="flex:1">COPY SHAREABLE LINK</button>
       </div>
       <div class="hint">ENCODES SEED, LOCKS + WORDMARK IN THE URL. OPEN IT TO GET THE EXACT PIECE.</div>
     </div>
     <div class="sec">
-      <h2>EXPORT</h2>
+      <h2>EXPORT <span class="jp">（出力）</span></h2>
       <div class="row" style="margin-bottom:8px">
         <select id="fmt" class="grow" style="flex:1"><option value="square">SQUARE 1:1</option><option value="poster">POSTER 2:3</option><option value="wide">WIDE 2:1 / BANNER</option><option value="avatar">AVATAR CROP 1:1</option></select>
       </div>
@@ -171,7 +173,7 @@ footer{margin-top:32px;border-top:1px solid var(--line);padding-top:12px;color:v
       <div class="hint">FORMAT APPLIES TO THE PREVIEW + ALL EXPORTS.</div>
     </div>
     <div class="sec">
-      <h2>BATCH</h2>
+      <h2>BATCH <span class="jp">（一括生成）</span></h2>
       <div class="row">
         <select id="batchN"><option>6</option><option selected>12</option><option>24</option></select>
         <button id="rollBatch" style="flex:1">ROLL BATCH</button>
@@ -385,7 +387,7 @@ function art(seed,locks,word,dens,opts){
  for(const[mx,my]of[[34,34],[W-34,34],[34,H-34],[W-34,H-34]])chromeTop+=L(mx-5,my,mx+5,my,1)+L(mx,my-5,mx,my+5,1);
  const num=ri(1,99),fig=String(ri(1,12)).padStart(2,'0');
  chromeTop+=T(52,56,'N°'+String(seed%10000).padStart(4,'0'),10);
- chromeTop+=T(W/2,56,'KOJIMA — SERIES '+pick(['A','B','C','K']),10,'middle');
+ chromeTop+=T(W/2,56,'KOJIMA — SERIES '+pick(['A','B','C','K'])+' / 型録',10,'middle');
  chromeTop+=T(W-52,56,'FIG.'+fig,10,'end');
  chromeTop+=L(52,66,W-52,66,0.75);
 
@@ -457,6 +459,7 @@ function art(seed,locks,word,dens,opts){
  chromeBottom+=T(52,fy+56,'SYS.'+ri(1,9)+' / '+LAYOUTS[layout]+' / '+INSTR[instr]+' / '+P.n,9,'start',ink,1.2);
  chromeBottom+=`<rect x="${W-66}" y="${fy+16}" width="14" height="14" fill="${acc}"/>`;
  chromeBottom+=T(W-80,fy+27,String(ri(1,99)).padStart(2,'0')+'/100',10,'end',ink,1);
+ chromeBottom+=T(W-52,fy+50,'検査済',8,'end',ink,1);
  const fg=chromeTop+draw+chromeBottom;
  let s;
  if(RISO){
@@ -722,7 +725,7 @@ function mint(){
 function renderColl(){
  const n=coll.length;
  $('collCount').textContent=n?('— '+n+' HELD'):'— EMPTY';
- $('railCollH').textContent=n?('COLLECTION — '+n):'COLLECTION';
+ $('railCollH').textContent=(n?('COLLECTION — '+n):'COLLECTION')+' （収集）';
  $('collEmpty').style.display=n?'none':'block';
  const g=$('coll');g.innerHTML='';
  for(const item of coll){
