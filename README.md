@@ -33,6 +33,9 @@ Gear Solid, and the technical UI craft of Death Stranding — hence the name.
   grotesk while the micro-labels stay mono for contrast.
 - **Riso finish** — an optional print treatment adding subtle ink grain and a
   slightly misregistered accent plate; applies to the preview and all exports.
+- **Japanese text** — an optional toggle adds bilingual plate labels (型録,
+  検査済) to the generated graphic itself, echoing the footer's own
+  すべての版は唯一無二.
 - **Custom wordmark** — type your own text into the title block.
 - **Deterministic seeds** — every graphic is reproducible from its seed; paste a
   seed to regenerate it exactly.

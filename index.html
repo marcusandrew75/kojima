@@ -13,8 +13,6 @@ header{display:flex;justify-content:space-between;align-items:baseline;gap:16px;
 h1{font-size:14px;font-weight:400;letter-spacing:.25em}
 header span{color:var(--dim);font-size:11px}
 header a{color:var(--acc);font-size:11px;letter-spacing:.1em;text-decoration:none}
-.jp{letter-spacing:.05em;color:var(--dim)}
-.sec h2 .jp{font-size:9px}
 header a:hover{text-decoration:underline}
 .wrap{display:flex;gap:24px;flex-wrap:wrap;align-items:flex-start;justify-content:center}
 .rail{flex:0 0 196px;display:flex;flex-direction:column;gap:18px;max-height:calc(100vh - 56px);overflow-y:auto;padding-right:4px;position:sticky;top:28px}
@@ -84,7 +82,7 @@ footer{margin-top:32px;border-top:1px solid var(--line);padding-top:12px;color:v
 </style>
 </head>
 <body>
-<header><div class="htitle"><h1>KOJIMA — MICRO-GRAPHIC GENERATOR</h1><span class="jp" style="font-size:11px">微細図像生成機</span><a href="https://herokit.app" target="_blank" rel="noopener">FROM THE CREATOR OF HEROKIT ↗</a></div><span>V0.6 / AFTER K.A.M.</span></header>
+<header><div class="htitle"><h1>KOJIMA — MICRO-GRAPHIC GENERATOR</h1><a href="https://herokit.app" target="_blank" rel="noopener">FROM THE CREATOR OF HEROKIT ↗</a></div><span>V0.7 / AFTER K.A.M.</span></header>
 <div class="wrap">
   <div class="rail">
     <div class="railsec">
@@ -93,7 +91,7 @@ footer{margin-top:32px;border-top:1px solid var(--line);padding-top:12px;color:v
       <div class="railempty" id="collEmpty">EMPTY — MINT A PIECE</div>
     </div>
     <div class="railsec">
-      <div class="railh">RECENT <span class="jp">（最近）</span></div>
+      <div class="railh">RECENT</div>
       <div class="railgrid" id="hist"></div>
       <div class="railempty" id="histEmpty">NO ROLLS YET</div>
     </div>
@@ -103,16 +101,16 @@ footer{margin-top:32px;border-top:1px solid var(--line);padding-top:12px;color:v
     <div id="status"></div>
   </div>
   <div class="panel">
-    <button class="big" id="lucky">◇ Feeling lucky — 運試し (L)</button>
+    <button class="big" id="lucky">◇ Feeling lucky (L)</button>
     <div class="sec">
-      <h2>TRAITS <span class="jp">（特性）</span> — CLICK VALUE TO CYCLE / ⟳ REROLL / LOCK TO PIN</h2>
+      <h2>TRAITS — CLICK VALUE TO CYCLE / ⟳ REROLL / LOCK TO PIN</h2>
       <div class="trait"><label>PALETTE</label><div class="val" data-t="pal"></div><button class="ghost rr" data-r="pal" aria-label="Reroll palette" title="Reroll palette">⟳</button><button class="ghost" data-l="pal">LOCK</button></div>
       <div class="trait"><label>LAYOUT</label><div class="val" data-t="layout"></div><button class="ghost rr" data-r="layout" aria-label="Reroll layout" title="Reroll layout">⟳</button><button class="ghost" data-l="layout">LOCK</button></div>
       <div class="trait"><label>INSTRUMENT</label><div class="val" data-t="instr"></div><button class="ghost rr" data-r="instr" aria-label="Reroll instrument" title="Reroll instrument">⟳</button><button class="ghost" data-l="instr">LOCK</button></div>
       <div class="trait"><label>NAME</label><div class="val" data-t="name"></div><button class="ghost rr" data-r="name" aria-label="Reroll name" title="Reroll name">⟳</button><button class="ghost" data-l="name">LOCK</button></div>
     </div>
     <div class="sec">
-      <h2>COMPLEXITY <span class="jp">（複雑度）</span></h2>
+      <h2>COMPLEXITY</h2>
       <div class="slider">
         <span class="ends">CALM</span>
         <input type="range" id="complexity" min="0" max="100" step="1" value="50">
@@ -122,13 +120,14 @@ footer{margin-top:32px;border-top:1px solid var(--line);padding-top:12px;color:v
       <div class="hint">SCALES TICK DENSITY, DECORATION + DETAIL ACROSS THE WHOLE PIECE.</div>
     </div>
     <div class="sec">
-      <h2>FINISH <span class="jp">（仕上げ）</span></h2>
+      <h2>FINISH</h2>
       <div class="trait"><label>WORDMARK</label><select id="wfont" class="grow" style="flex:1"><option>MONO</option><option>CONDENSED</option><option>GROTESK</option></select></div>
-      <div class="trait" style="margin-bottom:0"><label>RISO PRINT</label><button id="risoBtn" class="ghost" style="flex:1;padding:7px 10px">OFF</button></div>
-      <div class="hint">RISO ADDS INK GRAIN + A MISREGISTERED ACCENT PLATE.</div>
+      <div class="trait"><label>RISO PRINT</label><button id="risoBtn" class="ghost" style="flex:1;padding:7px 10px">OFF</button></div>
+      <div class="trait" style="margin-bottom:0"><label>JAPANESE TEXT</label><button id="jpBtn" class="ghost" style="flex:1;padding:7px 10px">OFF</button></div>
+      <div class="hint">RISO ADDS INK GRAIN + A MISREGISTERED ACCENT PLATE. JAPANESE TEXT ADDS BILINGUAL PLATE LABELS TO THE GRAPHIC ITSELF.</div>
     </div>
     <div class="sec">
-      <h2>PALETTE EDITOR <span class="jp">（配色編集）</span></h2>
+      <h2>PALETTE EDITOR</h2>
       <div class="swatches">
         <div class="swatch"><label>BG</label><input type="color" id="cpBg" value="#101010"></div>
         <div class="swatch"><label>INK</label><input type="color" id="cpInk" value="#EFEBE0"></div>
@@ -139,26 +138,26 @@ footer{margin-top:32px;border-top:1px solid var(--line);padding-top:12px;color:v
       <div class="hint">SAVED TO THIS BROWSER. CLICK A SAVED PALETTE TO APPLY + LOCK IT.</div>
     </div>
     <div class="sec">
-      <h2>WORDMARK + SEED <span class="jp">（銘板・種）</span></h2>
+      <h2>WORDMARK + SEED</h2>
       <input type="text" id="word" maxlength="16" placeholder="CUSTOM WORDMARK (OPTIONAL)" style="margin-bottom:8px">
       <div class="row"><input type="text" id="seed" class="grow" style="flex:1"><button id="applySeed">APPLY</button></div>
     </div>
     <div class="sec">
-      <h2>COLLECTION <span class="jp">（収集）</span> <span id="collCount" style="color:var(--dim)">— EMPTY</span></h2>
+      <h2>COLLECTION <span id="collCount" style="color:var(--dim)">— EMPTY</span></h2>
       <div class="row">
         <button class="big" id="mint" style="flex:1;border-color:var(--ink);color:var(--ink)">◆ Mint to collection (M)</button>
       </div>
       <div class="hint">MINTED PIECES GET A PERMANENT EDITION NUMBER AND SAVE TO THIS BROWSER.</div>
     </div>
     <div class="sec">
-      <h2>SHARE <span class="jp">（共有）</span></h2>
+      <h2>SHARE</h2>
       <div class="row">
         <button id="copylink" style="flex:1">COPY SHAREABLE LINK</button>
       </div>
       <div class="hint">ENCODES SEED, LOCKS + WORDMARK IN THE URL. OPEN IT TO GET THE EXACT PIECE.</div>
     </div>
     <div class="sec">
-      <h2>EXPORT <span class="jp">（出力）</span></h2>
+      <h2>EXPORT</h2>
       <div class="row" style="margin-bottom:8px">
         <select id="fmt" class="grow" style="flex:1"><option value="square">SQUARE 1:1</option><option value="poster">POSTER 2:3</option><option value="wide">WIDE 2:1 / BANNER</option><option value="avatar">AVATAR CROP 1:1</option></select>
       </div>
@@ -173,7 +172,7 @@ footer{margin-top:32px;border-top:1px solid var(--line);padding-top:12px;color:v
       <div class="hint">FORMAT APPLIES TO THE PREVIEW + ALL EXPORTS.</div>
     </div>
     <div class="sec">
-      <h2>BATCH <span class="jp">（一括生成）</span></h2>
+      <h2>BATCH</h2>
       <div class="row">
         <select id="batchN"><option>6</option><option selected>12</option><option>24</option></select>
         <button id="rollBatch" style="flex:1">ROLL BATCH</button>
@@ -226,7 +225,7 @@ function rarity(tr){
 function art(seed,locks,word,dens,opts){
  dens=(dens==null)?0.5:dens;
  opts=opts||{};
- const FONT=opts.font||MONO,FLS=opts.fls!=null?opts.fls:4,FW=opts.fw||400,RISO=!!opts.riso;
+ const FONT=opts.font||MONO,FLS=opts.fls!=null?opts.fls:4,FW=opts.fw||400,RISO=!!opts.riso,JP=!!opts.jp;
  const AP=PALS.concat(customPals);
  const R=mulberry32(seed);
  const pick=a=>a[Math.floor(R()*a.length)];
@@ -387,7 +386,7 @@ function art(seed,locks,word,dens,opts){
  for(const[mx,my]of[[34,34],[W-34,34],[34,H-34],[W-34,H-34]])chromeTop+=L(mx-5,my,mx+5,my,1)+L(mx,my-5,mx,my+5,1);
  const num=ri(1,99),fig=String(ri(1,12)).padStart(2,'0');
  chromeTop+=T(52,56,'N°'+String(seed%10000).padStart(4,'0'),10);
- chromeTop+=T(W/2,56,'KOJIMA — SERIES '+pick(['A','B','C','K'])+' / 型録',10,'middle');
+ chromeTop+=T(W/2,56,'KOJIMA — SERIES '+pick(['A','B','C','K'])+(JP?' / 型録':''),10,'middle');
  chromeTop+=T(W-52,56,'FIG.'+fig,10,'end');
  chromeTop+=L(52,66,W-52,66,0.75);
 
@@ -459,7 +458,7 @@ function art(seed,locks,word,dens,opts){
  chromeBottom+=T(52,fy+56,'SYS.'+ri(1,9)+' / '+LAYOUTS[layout]+' / '+INSTR[instr]+' / '+P.n,9,'start',ink,1.2);
  chromeBottom+=`<rect x="${W-66}" y="${fy+16}" width="14" height="14" fill="${acc}"/>`;
  chromeBottom+=T(W-80,fy+27,String(ri(1,99)).padStart(2,'0')+'/100',10,'end',ink,1);
- chromeBottom+=T(W-52,fy+50,'検査済',8,'end',ink,1);
+ if(JP)chromeBottom+=T(W-52,fy+50,'検査済',8,'end',ink,1);
  const fg=chromeTop+draw+chromeBottom;
  let s;
  if(RISO){
@@ -586,8 +585,8 @@ function makeZip(files){
 
 const $=id=>document.getElementById(id);
 const stage=$('stage'),hist=$('hist'),grid=$('batchGrid');
-let cur=null,locks={},histArr=[],batch=[],dens=0.5,fmt='square',wfi=0,riso=false;
-function curOpts(){return{font:FONTS[wfi].f,fls:FONTS[wfi].ls,fw:FONTS[wfi].w,riso};}
+let cur=null,locks={},histArr=[],batch=[],dens=0.5,fmt='square',wfi=0,riso=false,jp=false;
+function curOpts(){return{font:FONTS[wfi].f,fls:FONTS[wfi].ls,fw:FONTS[wfi].w,riso,jp};}
 const CPKEY='kojima_palettes';
 function loadCP(){try{return JSON.parse(localStorage.getItem(CPKEY))||[]}catch(e){return[]}}
 function saveCP(){try{localStorage.setItem(CPKEY,JSON.stringify(customPals))}catch(e){}}
@@ -608,6 +607,7 @@ function stateToHash(seed,lk,word){
  if(dens!==0.5)p.set('d',Math.round(dens*100));
  if(wfi)p.set('ft',wfi);
  if(riso)p.set('ri','1');
+ if(jp)p.set('jt','1');
  return p.toString();
 }
 function hashToState(){
@@ -629,7 +629,7 @@ function hashToState(){
  if(p.has('ll'))lk.layout=+p.get('ll');
  if(p.has('li'))lk.instr=+p.get('li');
  if(p.has('ln')){const ni=+p.get('ln');if(NAMES[ni])lk.name=NAMES[ni];}
- return{seed,locks:lk,word:p.get('w')||'',dens:p.has('d')?(+p.get('d')/100):0.5,wfi:p.has('ft')?+p.get('ft'):0,riso:p.get('ri')==='1'};
+ return{seed,locks:lk,word:p.get('w')||'',dens:p.has('d')?(+p.get('d')/100):0.5,wfi:p.has('ft')?+p.get('ft'):0,riso:p.get('ri')==='1',jp:p.get('jt')==='1'};
 }
 
 function render(seed){
@@ -648,15 +648,15 @@ function render(seed){
  window.history.replaceState(null,'','#'+stateToHash(seed,locks,$('word').value));
 }
 function setDens(v){dens=v;$('complexity').value=Math.round(v*100);$('cxout').textContent=Math.round(v*100);}
-function setFinish(wf,rs){wfi=(wf!=null&&FONTS[wf])?wf:0;riso=!!rs;$('wfont').value=FONTS[wfi].n;$('risoBtn').textContent=riso?'ON':'OFF';$('risoBtn').classList.toggle('on',riso);}
+function setFinish(wf,rs,jpv){wfi=(wf!=null&&FONTS[wf])?wf:0;riso=!!rs;jp=!!jpv;$('wfont').value=FONTS[wfi].n;$('risoBtn').textContent=riso?'ON':'OFF';$('risoBtn').classList.toggle('on',riso);$('jpBtn').textContent=jp?'ON':'OFF';$('jpBtn').classList.toggle('on',jp);}
 function loadState(seed,lk,word,dv,st){
  st=st||{};
- locks={...lk};$('word').value=word||'';setDens(dv==null?0.5:dv);setFinish(st.wfi,st.riso);syncLockUI();render(seed);
+ locks={...lk};$('word').value=word||'';setDens(dv==null?0.5:dv);setFinish(st.wfi,st.riso,st.jp);syncLockUI();render(seed);
  window.scrollTo({top:0,behavior:'smooth'});
 }
 function lucky(){
  if(cur){
-  histArr.unshift({seed:cur.seed,locks:{...locks},word:$('word').value,dens,wfi,riso});
+  histArr.unshift({seed:cur.seed,locks:{...locks},word:$('word').value,dens,wfi,riso,jp});
   histArr=histArr.slice(0,10);
   renderHist();
  }
@@ -666,13 +666,13 @@ function renderHist(){
  hist.innerHTML='';
  $('histEmpty').style.display=histArr.length?'none':'block';
  for(const h of histArr){
-  const g=art(h.seed,h.locks,h.word,h.dens,{font:FONTS[h.wfi||0].f,fls:FONTS[h.wfi||0].ls,fw:FONTS[h.wfi||0].w,riso:h.riso}),rr=rarity(g.traits);
+  const g=art(h.seed,h.locks,h.word,h.dens,{font:FONTS[h.wfi||0].f,fls:FONTS[h.wfi||0].ls,fw:FONTS[h.wfi||0].w,riso:h.riso,jp:h.jp}),rr=rarity(g.traits);
   const tile=document.createElement('div');
   tile.className='rtile'+(rr.tier!=='COMMON'?' tile-rare':'');
   tile.title='SEED '+h.seed+(rr.tier!=='COMMON'?' · '+rr.tier:'');
   tile.setAttribute('aria-label','Restore seed '+h.seed);
   tile.innerHTML=g.svg;
-  tile.onclick=()=>loadState(h.seed,h.locks,h.word,h.dens,{wfi:h.wfi,riso:h.riso});
+  tile.onclick=()=>loadState(h.seed,h.locks,h.word,h.dens,{wfi:h.wfi,riso:h.riso,jp:h.jp});
   hist.appendChild(tile);
  }
 }
@@ -718,14 +718,14 @@ function mint(){
  if(coll.some(x=>x.sig===s)){flash('mint','◆ ALREADY MINTED');return;}
  let n=parseInt(localStorage.getItem(MKEY)||'0',10)+1;
  try{localStorage.setItem(MKEY,n)}catch(e){}
- coll.unshift({sig:s,seed:cur.seed,locks:{...locks},word:$('word').value,label:cur.label,traits:cur.traits,edition:n,dens,wfi,riso});
+ coll.unshift({sig:s,seed:cur.seed,locks:{...locks},word:$('word').value,label:cur.label,traits:cur.traits,edition:n,dens,wfi,riso,jp});
  saveColl();renderColl();
  flash('mint','◆ MINTED #'+String(n).padStart(3,'0'));
 }
 function renderColl(){
  const n=coll.length;
  $('collCount').textContent=n?('— '+n+' HELD'):'— EMPTY';
- $('railCollH').textContent=(n?('COLLECTION — '+n):'COLLECTION')+' （収集）';
+ $('railCollH').textContent=n?('COLLECTION — '+n):'COLLECTION';
  $('collEmpty').style.display=n?'none':'block';
  const g=$('coll');g.innerHTML='';
  for(const item of coll){
@@ -733,8 +733,8 @@ function renderColl(){
   const tile=document.createElement('div');
   tile.className='rtile'+(rr.tier!=='COMMON'?' tile-rare':'');
   tile.title=ed+' '+item.label+(rr.tier!=='COMMON'?' · '+rr.tier+' 1 of ~'+rr.odds:'');
-  tile.innerHTML=art(item.seed,item.locks,item.word,item.dens,{font:FONTS[item.wfi||0].f,fls:FONTS[item.wfi||0].ls,fw:FONTS[item.wfi||0].w,riso:item.riso}).svg+'<span class="ed">'+ed+'</span>';
-  tile.onclick=()=>loadState(item.seed,item.locks,item.word,item.dens,{wfi:item.wfi,riso:item.riso});
+  tile.innerHTML=art(item.seed,item.locks,item.word,item.dens,{font:FONTS[item.wfi||0].f,fls:FONTS[item.wfi||0].ls,fw:FONTS[item.wfi||0].w,riso:item.riso,jp:item.jp}).svg+'<span class="ed">'+ed+'</span>';
+  tile.onclick=()=>loadState(item.seed,item.locks,item.word,item.dens,{wfi:item.wfi,riso:item.riso,jp:item.jp});
   const del=document.createElement('button');del.className='del';del.textContent='×';
   del.setAttribute('aria-label','Remove edition '+item.edition);
   del.onclick=e=>{e.stopPropagation();coll=coll.filter(x=>x!==item);saveColl();renderColl();};
@@ -755,7 +755,7 @@ document.addEventListener('keydown',e=>{
  if(k==='l')lucky();
  else if(k==='m')mint();
 });
-window.addEventListener('hashchange',()=>{const st=hashToState();if(st)loadState(st.seed,st.locks,st.word,st.dens,{wfi:st.wfi,riso:st.riso});});
+window.addEventListener('hashchange',()=>{const st=hashToState();if(st)loadState(st.seed,st.locks,st.word,st.dens,{wfi:st.wfi,riso:st.riso,jp:st.jp});});
 
 function dl(url,fn){const a=document.createElement('a');a.href=url;a.download=fn;a.click();}
 function slug(t){return t.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')||'untitled';}
@@ -770,7 +770,7 @@ $('dlpng').onclick=()=>{const o=compose(fmt,cur,curOpts()),k=parseInt($('pngScal
 $('copysvg').onclick=async()=>{const o=compose(fmt,cur,curOpts());try{await navigator.clipboard.writeText(o.svg);flash('copysvg','COPIED ✓');}catch(e){window.prompt('Copy SVG:',o.svg);}};
 $('rollBatch').onclick=()=>{
  const n=parseInt($('batchN').value,10);
- const snapLocks={...locks},snapWord=$('word').value,snapDens=dens,snapOpts=curOpts(),snapWfi=wfi,snapRiso=riso;
+ const snapLocks={...locks},snapWord=$('word').value,snapDens=dens,snapOpts=curOpts(),snapWfi=wfi,snapRiso=riso,snapJp=jp;
  batch=[];grid.innerHTML='';$('batchWrap').style.display='block';
  for(let i=0;i<n;i++){
   const seed=Math.floor(Math.random()*1e9);
@@ -782,7 +782,7 @@ $('rollBatch').onclick=()=>{
   b.innerHTML=g.svg;
   const rr=rarity(g.traits);
   if(rr.tier!=='COMMON'){b.classList.add('tile-rare');b.title=rr.tier+' · 1 of ~'+rr.odds;}
-  b.onclick=()=>loadState(seed,snapLocks,snapWord,snapDens,{wfi:snapWfi,riso:snapRiso});
+  b.onclick=()=>loadState(seed,snapLocks,snapWord,snapDens,{wfi:snapWfi,riso:snapRiso,jp:snapJp});
   grid.appendChild(b);
  }
  $('dlzip').disabled=false;$('dlzip').style.opacity=1;
@@ -843,8 +843,9 @@ renderCP();
 renderColl();
 $('wfont').onchange=()=>{wfi=Math.max(0,FONTS.findIndex(x=>x.n===$('wfont').value));if(wfi<0)wfi=0;if(cur)render(cur.seed);};
 $('risoBtn').onclick=()=>{riso=!riso;$('risoBtn').textContent=riso?'ON':'OFF';$('risoBtn').classList.toggle('on',riso);if(cur)render(cur.seed);};
+$('jpBtn').onclick=()=>{jp=!jp;$('jpBtn').textContent=jp?'ON':'OFF';$('jpBtn').classList.toggle('on',jp);if(cur)render(cur.seed);};
 const initial=hashToState();
-if(initial)loadState(initial.seed,initial.locks,initial.word,initial.dens,{wfi:initial.wfi,riso:initial.riso});
+if(initial)loadState(initial.seed,initial.locks,initial.word,initial.dens,{wfi:initial.wfi,riso:initial.riso,jp:initial.jp});
 else render(Math.floor(Math.random()*1e9));
 </script>
 <script>window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments);};</script>
