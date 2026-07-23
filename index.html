@@ -70,10 +70,13 @@ select{background:var(--bg);border:1px solid var(--line);color:var(--ink);font:i
 input[type=range]{-webkit-appearance:none;appearance:none;flex:1;height:2px;background:var(--line);outline:none}
 input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;background:var(--acc);cursor:pointer;border-radius:0}
 input[type=range]::-moz-range-thumb{width:14px;height:14px;background:var(--acc);border:none;cursor:pointer;border-radius:0}
-.swatches{display:flex;gap:8px;margin-bottom:10px}
-.swatch{flex:1;display:flex;flex-direction:column;gap:5px;align-items:center}
+.swatches{display:flex;gap:20px;margin-bottom:10px;justify-content:center}
+.swatch{display:flex;flex-direction:column;gap:6px;align-items:center}
 .swatch label{font-size:9px;color:var(--dim);letter-spacing:.1em}
-input[type=color]{width:100%;height:32px;border:1px solid var(--line);background:none;padding:2px;cursor:pointer}
+input[type=color]{width:38px;height:38px;border:1px solid var(--line);border-radius:50%;background:none;padding:0;cursor:pointer;overflow:hidden}
+input[type=color]::-webkit-color-swatch-wrapper{padding:0;border-radius:50%}
+input[type=color]::-webkit-color-swatch{border:none;border-radius:50%}
+input[type=color]::-moz-color-swatch{border:none;border-radius:50%}
 .cpal{display:flex;align-items:center;gap:7px;margin-top:8px;font-size:10px;letter-spacing:.1em}
 .cpal .sw{width:13px;height:13px;border:1px solid var(--line);flex-shrink:0}
 .cpal .nm{flex:1;cursor:pointer;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -83,11 +86,12 @@ input[type=color]{width:100%;height:32px;border:1px solid var(--line);background
 footer{margin-top:32px;border-top:1px solid var(--line);padding-top:12px;color:var(--dim);font-size:10px;letter-spacing:.2em}
 @media (max-width: 860px){
  body{padding:16px}
- .wrap{gap:16px}
- .rail,.stage,.panel{flex:1 1 100%;max-width:100%;position:static;top:auto;align-self:auto}
- .rail{max-height:none;overflow-y:visible;padding-right:0}
+ .wrap{display:block}
+ .rail{width:100%;max-width:100%;position:static;max-height:none;overflow-y:visible;padding-right:0;margin-bottom:16px}
  .railsec .railh{position:static}
- .stage svg{max-height:none}
+ .stage{width:100%;max-width:100%;position:sticky;top:0;z-index:5;background:var(--bg);margin-bottom:16px;padding-bottom:8px}
+ .stage svg{max-height:48vh;width:auto;max-width:100%;margin:0 auto}
+ .panel{width:100%;max-width:100%}
 }
 </style>
 </head>
